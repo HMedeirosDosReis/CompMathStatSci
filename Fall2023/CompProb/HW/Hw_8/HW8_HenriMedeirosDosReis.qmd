@@ -1,0 +1,347 @@
+---
+title: "**Homework 8**"
+subtitle: "MSSC 6010- Computational Probability"
+date: today
+date-format: long
+author: "Henri Medeiros Dos Reis"
+format: 
+  pdf:
+    pdf-engine: pdflatex ## have bold font
+    highlight: zenburn
+fontsize: 12pt
+fontfamily: libertinus
+geometry: margin=1in
+documentclass: article
+code-block-bg: "#202121"
+highlight-style: arrow-dark
+---
+
+::: {.hidden}
+\def\bx{\mathbf{x}}
+\def\bX{\mathbf{X}}
+\def\bg{\mathbf{g}}
+\def\bw{\mathbf{w}}
+\def\bb{\mathbf{b}}
+\def\bu{\mathbf{u}}
+\def\bbeta{\boldsymbol \beta}
+\def\bgamma{\boldsymbol \gamma}
+\def\bep{\boldsymbol \epsilon}
+\def\bH{\mathbf{H}}
+\def\bX{\mathbf{X}}
+\def\by{\mathbf{y}}
+\def\bH{\mathbf{H}}
+\def\bI{\mathbf{I}}
+\def\bS{\mathbf{S}}
+\def\bU{\mathbf{U}}
+\def\bV{\mathbf{V}}
+\def\bW{\mathbf{W}}
+\def\bD{\mathbf{D}}
+\def\T{\text{T}}
+\def\cov{\mathrm{Cov}}
+\def\cor{\mathrm{Corr}}
+\def\var{\mathrm{Var}}
+\def\E{\mathrm{E}}
+\def\P{\mathbb{P}}
+\def\bmu{\boldsymbol \mu}
+<!-- \DeclareMathOperator*{\argmin}{arg\,min} -->
+\def\Trace{\text{Trace}}
+:::
+
+
+**Question 1.** (6.7.4) From book. If $X\sim \chi_{10}^2$, fin the constants a and b so that $\P(a<X<b)=0.90$ and $\P(X<a) = 0.05$
+
+$$
+X\sim\chi_{10}^2 \Rightarrow f(x) \Bigg\{ \begin{matrix}\frac{1}{\Gamma(5)2^5}x^4e^{-5}&&\text{if }x\geq 0\\0&& \text{if } x<0\end{matrix}
+$$
+
+because $\sqrt{2\chi_n^2}\sim N(\sqrt{2n-1},1), Y = \sqrt{2\chi_n^2}-\sqrt{2n-1}\sim N(0,1)$, then 
+
+$$
+\P(\sqrt{2\chi_{10}^2}-\sqrt{2n-1}<\sqrt{2a}-\sqrt{10*2-1})= 0.05
+$$
+$$
+\P(Z<\sqrt{2a}-\sqrt{19})
+$$
+```{r}
+qnorm(0.05)
+```
+$$
+a = \frac{(-1.644854+\sqrt{19})^2}{2}
+$$
+```{r}
+(a<-(qnorm(0.05)+sqrt(19))**2/2)
+qchisq(0.05,10)
+```
+
+$$
+\begin{aligned}
+\P(a<X<b) &= 0.90 \\
+\P(\sqrt{2a}-\sqrt{19}< \sqrt{2\chi_{10}^2}-\sqrt{19}<\sqrt{2b}-\sqrt{19}) &= 0.9 \\
+\P(\sqrt{2a}-\sqrt{19}< Z<\sqrt{2b}-\sqrt{19}) &= 0.9 \\
+\P(Z<\sqrt{2b}-\sqrt{19})-\P(Z<\sqrt{2a}-\sqrt{19}) &= 0.9 \\
+\P(Z<\sqrt{2b}-\sqrt{19})-0.05&= 0.9\\
+\P(Z<\sqrt{2b}-\sqrt{19})&= 0.95
+\end{aligned}
+$$
+
+```{r}
+b<-(qnorm(0.95)+sqrt(19))**2/2
+pchisq(b,10) - pchisq(a,10)
+```
+
+**Question 2.** (6.7.11) From book. Given a random sample of size 6 from N(0,$\sigma$) calculate
+
+
+- *(a)* $\P(\frac{\bar{X}}{S}>2)$ and
+
+$$
+\frac{\bar{X}-\mu}{S/\sqrt{n}} \sim t_{n-1}
+$$
+$$
+\begin{aligned}
+\P(\frac{\bar{X}-0}{S/\sqrt{n}}>2) &= \P(\frac{\bar{X}}{S}>2\sqrt{6})\\
+&= 1-\P(\frac{\bar{X}}{S}<2\sqrt{6})\sim t
+\end{aligned}
+$$
+```{r}
+1-pt(2*sqrt(6),5)
+```
+
+
+- *(b)* $\P(|\frac{\bar{X}}{S_u}|\leq2)$ .
+
+$$
+S_u^2 = \frac{1}{n}\sum_{i=1}^n(x_i-\bar{X})^2 \text{ and }S^2 = \frac{1}{n-1}\sum_{i=1}^n(x_i-\bar{X})^2
+$$
+$$
+\Rightarrow S_u\sqrt{\frac{n}{n-1}} = S
+$$
+$$
+\begin{aligned}
+\P\left(\left|\frac{\bar{X}}{\frac{S_u\sqrt{n/n-1}}{\sqrt{n}}}\right|\leq4\right) &= \P\left(\left|\frac{\bar{X}}{S_u\sqrt{n-1}}\right|\leq4\right)\\
+&= \P(-4\leq\frac{\bar{X}}{S_u\sqrt{5}} \leq4)\\
+&= \P(-4\sqrt{5}\leq\frac{\bar{X}}{S_u} \leq4\sqrt{5})\\
+&= \P(\frac{\bar{X}}{S_u} \leq4\sqrt{5}) - \P(\frac{\bar{X}}{S_u} \leq-4\sqrt{5})
+\end{aligned}
+$$
+```{r}
+pt(4*sqrt(5), 5) - pt(-4*sqrt(5), 5)
+```
+
+**Question 2.** (7.4.14) From book. The following random samples $X$ and $Y$ are drawn from Pois($\lambda$) and Pois($2\lambda$), respectively:
+
+```{r}
+x_lambda <- c(4,2,5,7,3,4,3)
+y_2lambda <- c(6,10,1,6,3,5,5,4,7,5)
+```
+
+
+- *(a)*Derive the maximum likelihood estimator of $\lambda$ and calculate its variance. 
+
+$$
+\begin{aligned}
+L(\lambda|x) &= \Pi_{i=1}^n [\frac{1}{x_i!}(\lambda t)^{x_i}e^{-\lambda t}]\\
+\frac{\partial ln(L(\lambda|x))}{\partial \lambda}&= \frac{\partial}{\partial \lambda}\sum_{i=1}^n[ln(\frac{1}{x_i!}(\lambda t)^{x_i}e^{-\lambda t})\\\
+&= \frac{\partial}{\partial \lambda}\sum_{i=1}^n[ln(\frac{1}{x_i!})+ln(\lambda t)^{x_i}{-\lambda t})\\\
+&= \sum_{i=1}^n[\frac{x_i}{\lambda}-t]\\
+&= \frac{1}{\lambda}\sum_{i=1}^nx_i-nt
+\end{aligned}
+$$
+
+and $\frac{\partial(ln(L(\lambda|x)))^2}{\partial\lambda^2} = \frac{-1}{\lambda}\sum_{i=1}^nx_i<0$, since all i observations in poisson are positive integers. 
+
+Now setting it equal to 0 and solving for $\lambda$
+
+$$
+0 = \frac{1}{\lambda}\sum_{i=1}^nx_i-nt \\
+nt\lambda = \sum_{i=1}^nx_i\\
+\hat{\lambda} = \frac{\sum_{i=1}^nx_i}{nt}
+$$
+
+then variance
+
+$$
+\begin{aligned}
+Var(\hat{\lambda})&= Var( \frac{\sum_{i=1}^nx_i}{nt})\\
+&= \frac{1}{(nt)^2}Var(\sum_{i=1}^nx_i)\\
+&= \frac{1}{(nt)^2}\sum_{i=1}^nVar(x_i)\\
+&= \frac{n}{(nt)^2}Var(x)\\
+&= \frac{1}{nt^2}Var(x)\\
+&= \frac{\lambda}{nt^2}
+\end{aligned}
+$$
+
+
+
+- *(b)* Compute the maximum likelihood estimate of $\lambda$ and its variance using the two random samples given. 
+
+Now, since we are using both variables, they will have different "weights", so that $tn=t_1n_1+t_2n_2$ where we have one t and one n for each distribution, and the sum should add both x and y values. 
+
+$$
+\hat\lambda = \frac{\sum_{i=1}^7x_i+\sum_{i=1}^{10}y_i}{(n_1t_1+n_2t_2)}
+$$
+```{r}
+(sum(x_lambda)+sum(y_2lambda))/
+  (1*length(x_lambda)+2*length(y_2lambda))
+```
+
+And variance 
+$$
+var(\frac{\sum_{i=1}^7x_i+\sum_{i=1}^{10}y_i}{(n_1t_1+n_2t_2)}) = \frac{1}{(n_1t_1+n_2t_2)^2}(\sum_{i=1}^7x_i+\sum_{i=1}^{10}y_i)
+$$
+```{r}
+1/(1*length(x_lambda)+2*length(y_2lambda))**2*(
+  sum(x_lambda)+sum(y_2lambda))
+```
+
+
+
+**Question 4.** (7.4.31) Consider the density function 
+
+$$
+f(x) = \frac{1}{\theta}x^{\frac{1-\theta}{\theta}}, 0<x<1, 0<\theta<\infty
+$$
+
+
+- *(a)* Derive the maximum likelihood estimator of $\theta$ for a random sample of size n. 
+
+$$
+\begin{aligned}
+L(\theta|x) &= \Pi_{i=1}^n \frac{1}{\theta}x^{\frac{1-\theta}{\theta}}\\
+\frac{\partial ln(L(\theta|x))}{\partial \theta}&= \frac{\partial}{\partial\theta}\left(\sum_{i=1}^n\left[ln(\frac{1}{\theta}+(\frac{1}{\theta-1})ln(x_i)\right]\right)\\
+&= \sum_{i=1}^n\left[\frac{-1}{\theta}-\frac{lnx_i}{\theta^2}\right]\\
+\Rightarrow^{set = 0} \frac{-n}{\theta}-\frac{1}{\theta^2}\sum_{i=1}^nlnx_i&= 0\\
+-\frac{1}{\theta^2}\sum_{i=1}^nlnx_i&= \frac{n}{\theta}\\
+\hat\theta &=  \frac{-\sum_{i=1}^nlnx_i}{n}
+\end{aligned}
+$$
+
+Checking second derivative $\frac{\partial^2}{\partial\theta^2}=\sum_{i=1}^n\left(\frac{1}{\theta^2}+\frac{2}{\theta^3}lnx_i\right)$, then evaluating at $\hat\theta$ gives 
+$$
+\sum_{i=1}^n\left(\frac{1}{\left( \frac{-\sum_{i=1}^nlnx_i}{n}\right)^2}+\frac{2}{\left( \frac{-\sum_{i=1}^nlnx_i}{n}\right)^3}lnx_i\right) = \frac{n^3}{(\sum_{i=1}^nlnx_i)^2}-\frac{2n^3}{(\sum_{i=1}^nlnx_i)^3}\sum_{i=1}^nlnx_i<0
+$$
+
+- *(b)* Derive the method of moments estimator of $\theta$ for a random sample of size n. 
+
+$$
+\begin{aligned}
+m1 = \alpha_1(\theta)=E[X] &= \int_0^1x\frac{1}{\theta}x^{\frac{1-\theta}{\theta}}dx \\
+&= \frac{1}{\theta}\int_0^1x^\frac{1}{\theta}dx\\
+&= \frac{1}{\theta}\frac{x^{\frac{1}{\theta}+1}}{\frac{1}{\theta}+1}\Bigg|_0^1\\
+&= \frac{1}{\theta(\frac{1}{\theta})+1}\\
+E[X]&= \frac{1}{1+\theta}\\
+\hat\theta &= \frac{1-E[X]}{E[X]}
+\end{aligned}
+$$
+
+- *(c)* Show that the maximum likelihood estimator is unbiased. 
+
+
+In order to be unbiased $E[\theta ] = \theta$
+$$
+\begin{aligned}
+E[\hat\theta] &= E[\frac{-\sum_{i=1}^nlnx_i}{n}]\\
+&= \frac{-1}{n}\sum_{i=1}^nE[lnx_i]\\
+&= -E[lnx]\\
+&= -\int_0^1lnx\frac{1}{\theta}x^{\frac{1-\theta}{\theta}}\\
+\text{ by parts } &\Rightarrow \begin{matrix}u = lnx && dv = \frac{1}{\theta}x^{\frac{1-\theta}{\theta}}\\du = \frac{1}{x}&& v= x^\frac{1}{\theta}\end{matrix}\\
+E[\hat\theta] &= -lnxx^\frac{1}{\theta}+\int_0^1x^{\frac{1}{\theta}-1}dx\\
+&= \left[-lnxx^{\frac{1}{\theta}}+\theta x^\frac{1}{\theta}\right]_0^1\\
+&= 0+lim_{x\rightarrow 0^+}\frac{lnx}{1/x^\frac{1}{\theta}}+\theta\\
+&= 0+\theta
+\end{aligned}
+$$
+
+Therefore, it is an unbiased estimator
+
+
+**Question 2.** (7.4.36) From book. Consider the density function 
+
+$$
+f(x) = e^{-(x-\alpha)}, -\infty<\alpha\leq x
+$$
+-*(a)* Find the maximum likelihood and method of moments estimators of $\alpha$
+
+The calculus approach is not going to work for the maximum likelihood, since once we that the natural log followed by the derivative, $\alpha$ is not going to be involved in the equation. 
+
+However, since $e^{-(x-\alpha)}$ is maximized when $\alpha=x$, and $x$ changes from $\alpha$ to $x$ then the MLE is $\hat\alpha = min(x_i)$
+
+
+```{r}
+# Function to compute the PDF of the given distribution
+pdf_distribution <- function(x, alpha) {
+  result <- numeric(length(x))
+  
+  result[x > alpha] <- exp(-(x[x > alpha] - alpha))
+  result[x < alpha] <- 0
+  
+  return(result)
+}
+
+# Set the parameter 'a'
+alpha <- 2.0
+
+# Generate x values
+x_values <- runif(10000, 0, 10)
+
+# Compute the PDF values
+pdf_values <- pdf_distribution(x_values, alpha)
+
+# Plot the PDF
+plot(x_values, pdf_values, type='p', col='blue', lwd=1, 
+     main=paste('Probability Density Function (alpha=', alpha, ')'), 
+     xlim = c(0,10),
+     xlab='x', ylab='Probability Density')
+valid_indices <- x_values >= alpha
+valid <- x_values[valid_indices]
+abline(v = min(valid), lty=2, col="red", lwd = 2)
+```
+
+And the method of moments 
+$$
+\begin{aligned}
+m_1 = E[X] &= \int_\alpha^\infty xe^{-(x-\alpha)}dx\\
+&= \left[-xe^{-(x-\alpha)}\right]_\alpha^\infty+\int_\alpha^\infty e^{-(x-\alpha)}dx\\
+&= \alpha+\left[-e^{-(x-\alpha)}\right]_\alpha^\infty\\
+E[X]&=\alpha+1\\
+\hat\alpha&= E[X]-1
+\end{aligned}
+$$
+
+
+-*(b)* Are both estimators found in (a) asymptotically unbiased?
+
+For the MLE $E[\hat\alpha] = min(x_i)$, and as $n\rightarrow \infty$, the change of getting $x_i$ close to $\alpha$ goes to 1. Which maximizes the likelihood, then, it is an asymptotically unbiased estimator. 
+
+For method of moments
+$$
+\begin{aligned}
+E[\hat\alpha] &= E[E[X]-1]\\
+&= E[X]-1\\
+&= \hat\alpha
+\end{aligned}
+$$
+Therefore, this is not an unbiased estimator. Furthermore
+$$
+lim_{n\rightarrow \infty}E[X]-1 = E[X]-1
+$$
+which means this is an asymptotically unbiased estimator
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+> 1-pt(sqrt(((15-1)*0.1**2+(20-1)**(0.09**2))/(15+20-2)*1/15+1/20)*0.45+0.5,15+20-2)
+
+
+

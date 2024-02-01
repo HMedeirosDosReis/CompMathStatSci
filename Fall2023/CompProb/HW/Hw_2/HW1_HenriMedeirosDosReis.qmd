@@ -1,0 +1,264 @@
+---
+title: "**Homework 1**"
+subtitle: "MSSC 6010- Computational Probability"
+date: today
+date-format: long
+author: "Henri Medeiros Dos Reis"
+format: 
+  pdf:
+    pdf-engine: pdflatex ## have bold font
+fontsize: 12pt
+fontfamily: libertinus
+geometry: margin=1in
+documentclass: article
+code-block-bg: "#202121"
+highlight-style: arrow-dark
+---
+
+::: {.hidden}
+\def\bx{\mathbf{x}}
+\def\bX{\mathbf{X}}
+\def\bg{\mathbf{g}}
+\def\bw{\mathbf{w}}
+\def\bb{\mathbf{b}}
+\def\bu{\mathbf{u}}
+\def\bbeta{\boldsymbol \beta}
+\def\bgamma{\boldsymbol \gamma}
+\def\bep{\boldsymbol \epsilon}
+\def\bH{\mathbf{H}}
+\def\bX{\mathbf{X}}
+\def\by{\mathbf{y}}
+\def\bH{\mathbf{H}}
+\def\bI{\mathbf{I}}
+\def\bS{\mathbf{S}}
+\def\bU{\mathbf{U}}
+\def\bV{\mathbf{V}}
+\def\bW{\mathbf{W}}
+\def\bD{\mathbf{D}}
+\def\T{\text{T}}
+\def\cov{\mathrm{Cov}}
+\def\cor{\mathrm{Corr}}
+\def\var{\mathrm{Var}}
+\def\E{\mathrm{E}}
+\def\bmu{\boldsymbol \mu}
+<!-- \DeclareMathOperator*{\argmin}{arg\,min} -->
+\def\Trace{\text{Trace}}
+:::
+
+**Question 1.** (1.21.5) From book. Vectors, sequences, and logical operators.
+
+- *(a)* Assign the names $x$ and $y$ to the values $5$ and $7$, respectively. Find $x^y$ and assign the
+result to $z$. What is the valued stored in $z$?
+
+```{r}
+x <- 5
+y <- 7
+(z <- x**y)
+```
+The value of $z$ is 78125
+
+
+- *(b)* Create the vectors $u = (1, 2, 5, 4)$ and $v = (2, 2, 1, 1)$ using the \verb|c()| function
+
+```{r}
+u <- c(1,2,5,4)
+v <- c(2,2,1,1)
+```
+
+
+- *(c)* Provide \verb|R| code to find which component of \verb|u| is equal to $5$.
+
+```{r}
+which(u==5)
+```
+
+- *(d)* Provide \verb|R| code to give the components of \verb|v| greater than or equal to $2$.
+```{r}
+which(v>=2)
+```
+
+- *(e)* Find the product $u \times v$. How does \verb|R| perform the operation?
+```{r}
+u*v
+```
+This operation is performed element wise. 
+
+
+- *(f)* Explain what \verb|R| does when two vectors of unequal length are multiplied together. Specifically, what is \verb|u| $\times$ \verb|c(u, v)|?
+```{r}
+u*c(u,v)
+```
+The value is the shorter vector get multiplied again to match the elements that are left. Once all the elements in the first vector are over, then it starts again. 
+
+
+- *(g)* Provide \verb|R| code to define a sequence from $1$ to $10$ called \verb|G| and subsequently to select
+the first three components of \verb|G|
+```{r}
+G <- seq(1,10)
+G[1:3]
+```
+
+
+- *(h)* Use \verb|R| to define a sequence from $1$ to $30$ named \verb|J| with an increment of $2$ and subsequently
+to choose the first, third, and eighth values of \verb|J|.
+```{r}
+J <- seq(1,30,2)
+J[c(1,3,8)]
+```
+
+
+- *(i)* Calculate the scalar product (dot product) of $q = (3, 0, 1, 6)$ by $r = (1, 0, 2, 4)$.
+```{r}
+q <- c(3,0,1,6)
+r <- c(1,0,2,4)
+(q%*%r)
+```
+
+- *(j)* Define the matrix $X$ whose rows are the $u$ and $v$ vectors from part (b).
+```{r}
+(X <- rbind(u,v))
+```
+
+- *(k)* Define the matrix $Y$ whose columns are the $u$ and $v$ vectors from part (b).
+```{r}
+(Y <- cbind(u,v))
+```
+
+
+- *(l)* Find the matrix product of $X$ by $Y$ and name it $W$.
+```{r}
+(W <- X%*%Y)
+```
+
+- *(m)* Provide \verb|R| code that computes the inverse matrix of $W$ and the transpose of that inverse.
+```{r}
+(invW <- solve(W))
+(invWT <- t(invW))
+```
+
+
+
+
+
+**Question 2.** (2.10.5) From book. The data frame \verb|VIT2005| in the \verb|PASWR2| package contains descriptive information and the
+appraised total price (in euros) for apartments in Vitoria, Spain.
+
+```{r, warning=FALSE, results="hide", message=FALSE}
+library(MASS)
+library(PASWR2)
+library(dplyr)
+```
+
+
+- *(a)* Create a frequency table, a piechart, and a barplot showing the number of apartments
+grouped by the variable \verb|out|. For you, which method conveys the information best?
+
+```{r, results= FALSE}
+head(VIT2005,5)
+summary(VIT2005)
+```
+```{r}
+VIT2005$out <- factor(VIT2005$out, levels = c("E25", "E50", "E75", "E100"))
+summary(VIT2005$out)
+```
+```{r}
+ggplot(data = VIT2005, aes(x = out)) + 
+  geom_bar(fill="lightblue") +
+  theme_bw()
+```
+```{r}
+ggplot(data = VIT2005, aes(x = factor(1), fill = out)) +
+  geom_bar()+
+  coord_polar(theta = "y") +
+  labs(x = "",y = "")
+
+```
+The method that conveys the information the best is the bar plot. 
+
+
+
+- *(b)* Characterize the distribution of the variable \verb|totalprice|.
+
+```{r}
+hist(VIT2005$totalprice, col = "lightblue", xlab = "Total Price",
+     main = "Apartment Price's in Vitoria, 2005")
+
+summary(VIT2005$totalprice)
+```
+
+As it is possible to see, this distribution is skewed to the right. It has 1 outlier, of the value $560000\$$, median of $269750\$$, and mean $280742\$$
+
+
+- *(c)* Characterize the relationship between \verb|totalprice| and \verb|area|.
+
+```{r}
+# Checking for a rtlationship between totalprice and area
+plot(VIT2005$area, VIT2005$totalprice, pch = 19, xlab = "Area",
+     ylab = "Total Price", main = "Price x Area")
+```
+There exists a positive linear relationship between Area and Price. 
+
+- *(d)* Create a Trellis plot of \verb|totalprice| versus \verb|area| conditioning on \verb|toilets|. Create the same graph with \verb|ggplot2| graphics. Are there any outliers? Ignoring any outliers,
+between what two values of \verb|area| do apartments have both one and two bathrooms?
+```{r}
+# Trellis plot
+xyplot(totalprice ~ area | toilets, data = VIT2005, layout = c(2, 1),
+       main = "Total Price vs. Area (Conditioned on Toilets)",
+       xlab = "Area", ylab = "Total Price",
+       par.settings = simpleTheme(pch = 19, col = "black"))
+```
+```{r}
+# Same plot using ggplot
+ggplot(data = VIT2005, aes(x = area, y = totalprice)) +
+  geom_point() +
+  labs(x = "Area", y = "Total Price",
+       title = "Total Price vs. Area (Conditioned on Toilets)") +
+  theme_bw() +
+  facet_grid(~toilets)
+```
+
+Let's check for outliers
+```{r}
+# Calculate outliers using IQR method
+toilets_outliers <- VIT2005 %>%
+  group_by(toilets) %>%
+  summarize(
+    lower_fence = quantile(totalprice, 0.25) - 1.5 * IQR(totalprice),
+    upper_fence = quantile(totalprice, 0.75) + 1.5 * IQR(totalprice)
+  )
+outliers <- VIT2005 %>%
+  left_join(toilets_outliers, by = "toilets") %>%
+  filter(totalprice < lower_fence | totalprice > upper_fence)
+outliers$toilets
+```
+As we can see, there are five outliers, four with 1 toilet and one with 2 toilets. 
+
+Now, let's see in what range of price the apartments can have either 1 or 2 toilets. 
+
+```{r}
+outliers <- outliers[-c(16,17)]
+
+filtered <- setdiff(VIT2005,outliers)
+one_t <- subset(filtered, subset = toilets==1)
+two_t <- subset(filtered, subset = toilets==2)
+  
+max(one_t$area)
+min(two_t$area)
+```
+
+The overlapping range is from 80 squared meters to 110 squared meters. 
+
+
+- *(e)* Use the \verb|area| values reported in (d) to create a subset of apartments that have both one
+and two bathrooms. By how much does an additional bathroom increase the appraised
+value of an apartment? Would you be willing to pay for an additional bathroom if you
+lived in Vitoria, Spain?
+
+```{r}
+both_t <- subset(filtered, subset = area >= 80 & area <= 110)
+my_diff <- tapply(both_t$totalprice, both_t$toilets, mean)
+my_diff[2]-my_diff[1]
+```
+An additional bathroom averages to be 67,607 increase in the price. I would be willing to pay extra in order to have an additional bathroom. 
+
+

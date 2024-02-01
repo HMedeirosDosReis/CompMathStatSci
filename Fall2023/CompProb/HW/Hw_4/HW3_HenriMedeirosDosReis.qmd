@@ -1,0 +1,315 @@
+---
+title: "**Homework 3**"
+subtitle: "MSSC 6010- Computational Probability"
+date: today
+date-format: long
+author: "Henri Medeiros Dos Reis"
+format: 
+  pdf:
+    pdf-engine: pdflatex ## have bold font
+    highlight: zenburn
+fontsize: 12pt
+fontfamily: libertinus
+geometry: margin=1in
+documentclass: article
+code-block-bg: "#202121"
+highlight-style: arrow-dark
+---
+
+::: {.hidden}
+\def\bx{\mathbf{x}}
+\def\bX{\mathbf{X}}
+\def\bg{\mathbf{g}}
+\def\bw{\mathbf{w}}
+\def\bb{\mathbf{b}}
+\def\bu{\mathbf{u}}
+\def\bbeta{\boldsymbol \beta}
+\def\bgamma{\boldsymbol \gamma}
+\def\bep{\boldsymbol \epsilon}
+\def\bH{\mathbf{H}}
+\def\bX{\mathbf{X}}
+\def\by{\mathbf{y}}
+\def\bH{\mathbf{H}}
+\def\bI{\mathbf{I}}
+\def\bS{\mathbf{S}}
+\def\bU{\mathbf{U}}
+\def\bV{\mathbf{V}}
+\def\bW{\mathbf{W}}
+\def\bD{\mathbf{D}}
+\def\T{\text{T}}
+\def\cov{\mathrm{Cov}}
+\def\cor{\mathrm{Corr}}
+\def\var{\mathrm{Var}}
+\def\E{\mathrm{E}}
+\def\P{\mathbb{P}}
+\def\bmu{\boldsymbol \mu}
+<!-- \DeclareMathOperator*{\argmin}{arg\,min} -->
+\def\Trace{\text{Trace}}
+:::
+
+**Question 1.** (3.6.39) From book. Let the random variable $X$ be the sum of the numbers on two fair dice. Find an upper bound on $\P(|X-7|\geq4|)$ using Chebyshev's Inequality as well as the exact probability for $\P(|X-7|\geq4|)$. 
+
+```{r}
+X = c(2,3,4,5,6,7,8,9,10,11,12)
+X = rbind(X,c(1/36,2/36,3/36,4/36,5/36,6/36,5/36,4/36,3/36,2/36,1/36))
+# Round for the output 
+X = signif(X,digits=3)
+X
+# Go back to the original 
+X = c(2,3,4,5,6,7,8,9,10,11,12)
+X = rbind(X,c(1/36,2/36,3/36,4/36,5/36,6/36,5/36,4/36,3/36,2/36,1/36))
+```
+
+Then we need $\mu$ and $\sigma^2$ in order to be able to use Chebyshev's Inequality. We use $\mu = \sum x\P(x)$ and $\sigma^2 = E[X^2]-\mu^2$
+
+```{r}
+mu = sum(X[1,]*X[2,])
+sigma_2 = sum(X[1,]**2*X[2,])-mu^2
+print(paste('mu = ', mu, ', sigma^2 = ', sigma_2))
+# Calculate Chebychev's RHS
+my_prob = sigma_2/(4**2)
+```
+Plugging to Chebychev's Inequality
+
+$$
+\begin{aligned}
+\P(|X-\mu|\geq k|) &\leq \frac{\sigma^2}{k^2}\\
+\P(|X-7|\geq 4|) &\leq \frac{5.83333^2}{4^2} \\
+\P(|X-7|\geq 4|) &\leq 0.36458333
+\end{aligned}
+$$
+
+Now, the exact probability is $\P(X=2)+\P(X=3)+\P(X=11)+\P(X=12) = 0.166666$
+
+```{r}
+(exact_prob = X[2,1]+X[2,2]+X[2,10]+X[2,11])
+```
+```{r,results='hide', message=FALSE, warning=FALSE}
+# Clear environment
+rm(list = ls(all=TRUE))
+```
+
+
+\newpage
+**Question 2.** (3.6.48) From book. Consider the random variable $X$, which takes the values $1,2,3,$ and $4$ with probabilities $0.2,0.3,0.1,$ and $0.4$, respectively. Calculate $E[X]$, $\frac{1}{E[X]}$,$E\left[\frac{1}{X}\right]$,$E[X^2]$, and $E[X]^2$, and check empirically that $E[X]^2 \neq E[X^2]$ and $\frac{1}{E[X]}\neq E\left[\frac{1}{X}\right]$
+
+```{r}
+X = c(1,2,3,4)
+X = rbind(X, c(0.2,0.3,0.1,0.4))
+X
+```
+Now we can compute all the expectations
+```{r}
+E_X = sum(X[1,]*X[2,])
+one_div_E_X = 1/E_X
+E_one_div_X = sum(1/X[1,]*X[2,])
+E_X_sqr = sum(X[1,]**2*X[2,])
+E_X_qnty_sqr = E_X^2
+cat("E[X]**2 = ", E_X_qnty_sqr, ", E[X**2] = ",
+    E_X_sqr, ", E[X]**2 == E[X**2] is ", E_X_qnty_sqr == E_X_sqr, "\n")
+cat("And E[1/X] = ", E_one_div_X, ", 1/E[X] = ", 
+    one_div_E_X, ", E[1/X] == 1/E[X] is ", E_one_div_X==one_div_E_X)
+```
+Therefore $E[X]^2 \neq E[X^2]$ and $\frac{1}{E[X]}\neq E\left[\frac{1}{X}\right]$.
+
+\newpage
+**Question 3.** (3.6.50) From book. Find the values of $k$ such that the following functions are probability density functions. 
+
+- *(a)* $f(x) = \frac{kx^4}{5}, 0<x<1$
+
+$$
+\begin{aligned}
+1 &= \int_{-\infty}^\infty f(x)dx \\
+&= \int_0^1\frac{kx^4}{5}dx \\
+&= \frac{kx^5}{25}\Bigg|_0^1 \\
+&= k(\frac{x^5}{25})\Bigg|_0^1\\
+&= k(\frac{1}{25}-0)\\
+1&= \frac{k}{25}\\
+k&= 25
+\end{aligned}
+$$
+
+\newpage
+
+**Question 4.** (3.6.52) From book. Consider an experiment where two dice are rolled. Let the random variable $X$ equal the sum of the two dice and the random variable $Y$ be the difference of the two dice. 
+
+```{r,results='hide', message=FALSE, warning=FALSE}
+# Clear environment
+rm(list = ls(all=TRUE))
+```
+
+First let's define X and Y
+
+```{r}
+X = c(2,3,4,5,6,7,8,9,10,11,12)
+X = rbind(X,c(1/36,2/36,3/36,4/36,5/36,6/36,5/36,4/36,3/36,2/36,1/36))
+Y = c(-5,-4,-3,-2,-1,0,1,2,3,4,5)
+Y = rbind(Y,c(1/36,2/36,3/36,4/36,5/36,6/36,5/36,4/36,3/36,2/36,1/36))
+
+# Round for the output 
+X = signif(X,digits=3)
+X
+# Go back to the original 
+X = c(2,3,4,5,6,7,8,9,10,11,12)
+X = rbind(X,c(1/36,2/36,3/36,4/36,5/36,6/36,5/36,4/36,3/36,2/36,1/36))
+
+
+Y = signif(Y,digits=3)
+Y
+# Go back to the original 
+Y = c(-5,-4,-3,-2,-1,0,1,2,3,4,5)
+Y = rbind(Y,c(1/36,2/36,3/36,4/36,5/36,6/36,5/36,4/36,3/36,2/36,1/36))
+```
+
+
+- *(a)* Find the mean of $X$
+
+```{r}
+mu = sum(X[1,]*X[2,])
+cat("mean = ", mu)
+```
+
+- *(b)* Find the variance of $X$
+```{r}
+sigma_sqr = sum(X[1,]**2*X[2,])-mu^2
+cat("variance = ", sigma_sqr)
+```
+
+
+- *(c)* Find the skewness of $X$
+
+```{r}
+skewness = sum((X[1,]-mu)**3*X[2,])/(sqrt(sigma_sqr))**3
+cat("skewness = ", skewness)
+```
+
+
+- *(d)* Find the mean of $Y$
+
+```{r}
+mu_y = sum(Y[1,]*Y[2,])
+cat("mean_y = ", mu_y)
+```
+
+
+- *(e)* Find the variance of $Y$
+
+```{r}
+sigma_sqr_y = sum(Y[1,]**2*Y[2,])-mu_y^2
+cat("variance_y = ", sigma_sqr_y)
+```
+
+
+
+- *(f)* Find the skewness of $Y$
+
+```{r}
+skewness_y = sum((Y[1,]-mu_y)**3*Y[2,])/(sqrt(sigma_sqr_y))**3
+cat("skewness_y = ", skewness_y)
+```
+
+
+
+\newpage
+
+
+**Question 5.** (3.6.58) From book. Consider the probability density function 
+
+$$
+f(x) = \frac{1}{36}xe^{\frac{-x}{6}}, x>0
+$$
+
+Derive the moment generating function, and calculate the mean and the variance. 
+
+$$
+\begin{aligned}
+M_X(t)&= E[e^{tX}]\\
+&= \int_{-\infty}^\infty e^{tX}\left(\frac{1}{36}xe^{\frac{-x}{6}}\right)dx, x>0\\
+&= \frac{1}{36}\int_{0}^\infty \left(xe^{-x(\frac{1}{6}-t)}\right)dx\\
+&= \frac{1}{36}\left[x\left(\frac{1}{t-\frac{1}{6}}e^{-x(\frac{1}{6}-t)}\right)-\int_{0}^\infty\left(\frac{1}{t-\frac{1}{6}}e^{-x(\frac{1}{6}-t)}\right)dx\right]\\
+&= \frac{1}{36}\left[x\left(\frac{1}{t-\frac{1}{6}}e^{-x(\frac{1}{6}-t)}\right)-\left(\frac{1}{(t-\frac{1}{6})^2}e^{-x(\frac{1}{6}-t)}\right)\right]\Bigg|_0^\infty\\
+&=\lim_{b\rightarrow\infty}\frac{1}{36}\left[x\left(\frac{1}{t-\frac{1}{6}}e^{-x(\frac{1}{6}-t)}\right)-\left(\frac{1}{(t-\frac{1}{6})^2}e^{-x(\frac{1}{6}-t)}\right)\right]\Bigg|_0^b\\
+&=\frac{1}{36}\lim_{b\rightarrow\infty}\left[b\left(\frac{1}{t-\frac{1}{6}}e^{-b(\frac{1}{6}-t)}\right)-\left(\frac{1}{(t-\frac{1}{6})^2}e^{-b(\frac{1}{6}-t)}\right)-\left(0-\left(\frac{1}{(t-\frac{1}{6})^2}e^{0}\right)\right)\right]\\
+&=\frac{1}{36}\lim_{b\rightarrow\infty}\left[b\left(\frac{1}{t-\frac{1}{6}}e^{-b(\frac{1}{6}-t)}\right)-\left(\frac{1}{(t-\frac{1}{6})^2}e^{-b(\frac{1}{6}-t)}\right)-\left(-\frac{1}{(t-\frac{1}{6})^2}\right)\right]\\
+&=\frac{1}{36}\left(\frac{1}{(t-\frac{1}{6})^2}\right)+\lim_{b\rightarrow\infty}\left[b\left(\frac{1}{t-\frac{1}{6}}e^{-b(\frac{1}{6}-t)}\right)-\left(\frac{1}{(t-\frac{1}{6})^2}e^{-b(\frac{1}{6}-t)}\right)\right]\\
+M_X(t)&= \frac{1}{36}\left(\frac{1}{(t-\frac{1}{6})^2}\right)
+\end{aligned}
+$$
+Since 
+
+$$
+\begin{aligned}
+\lim_{b\rightarrow\infty}\left[b\left(\frac{1}{t-\frac{1}{6}}e^{-b(\frac{1}{6}-t)}\right)-\left(\frac{1}{(t-\frac{1}{6})^2}e^{-b(\frac{1}{6}-t)}\right)\right]&= 0\\
+\lim_{b\rightarrow\infty}\left[b\left(\frac{1}{t-\frac{1}{6}}e^{-b(\frac{1}{6}-t)}\right)\right]-\lim_{b\rightarrow\infty}\left[\left(\frac{1}{(t-\frac{1}{6})^2}e^{-b(\frac{1}{6}-t)}\right)\right]&= \\
+\lim_{b\rightarrow\infty}\left[b\left(\frac{1}{t-\frac{1}{6}}e^{-b(\frac{1}{6}-t)}\right)\right]-\left[\frac{1}{\infty}\right]&= \\
+\lim_{b\rightarrow\infty}\left[b\left(\frac{1}{t-\frac{1}{6}}e^{-b(\frac{1}{6}-t)}\right)\right]&= \\
+\frac{1}{t-\frac{1}{6}}\lim_{b\rightarrow\infty}\left[b\left(e^{-b(\frac{1}{6}-t)}\right)\right]&=\\
+\frac{1}{t-\frac{1}{6}}\lim_{b\rightarrow\infty}\left[\frac{b}{e^{-b(\frac{1}{6}-t)}}\right]&=\\
+\frac{1}{t-\frac{1}{6}}\lim_{b\rightarrow\infty}\left[\frac{1}{(-(\frac{1}{6}-t)e^{-b(\frac{1}{6}-t)}}\right]&=
+0 \text{ by L'Hopital }\\
+\frac{1}{\infty}&=0
+\end{aligned}
+$$
+Finally, we can compute the mean and variance. 
+
+The mean is the first derivative evaluated at $t=0$
+
+$$
+\begin{aligned}
+E[X] &= \frac{d}{dt}\frac{1}{36(t-1/6)^2}\\
+&= \frac{-2}{36}(t-\frac{1}{6})^{-3}\\
+&= \frac{-2}{36}(-\frac{1}{6})^{-3}\\
+&= 12
+\end{aligned}
+$$
+And the variance is the second moment, which is the second derivative evaluated at 0, minus $E[X]^2$
+
+$$
+\begin{aligned}
+var(X) &= E[X^2]-E[X]^2 \\
+&= \frac{6}{36}(t-\frac{1}{6})^{-4}-12^2\\
+&= \frac{6}{36}(\frac{1}{6})^{-4}-12^2\\
+&= 72
+\end{aligned}
+$$
+
+\newpage
+
+**Question 6.** (3.6.60) From book. Prove that if $a$ and $b$ are real-valued constants, then 
+
+- *(1)*$M_{X+a}(t) = E[e^{(X+a)t}]=e^{at}M_X(t)$.
+
+$$
+\begin{aligned}
+M_{X+a}(t) &= E[e^{(X+a)t}]\\
+&= \int_{-\infty}^\infty e^{(X+a)t}f(x)dx\\
+&= \int_{-\infty}^\infty e^{Xt+at}f(x)dx\\
+&= \int_{-\infty}^\infty e^{Xt}e^{at}f(x)dx \text{ ,and }e^{at} \text{ is a constant}\\
+&= e^{at}\int_{-\infty}^\infty e^{Xt}f(x)dx \\
+&= e^{at}M_X(t)
+\end{aligned}
+$$
+
+- *(2)*$M_{bX}(t) = E[e^{bXt}]= M_X(bt)$.
+
+$$
+\begin{aligned}
+M_{bX}(t) &= E[e^{bXt}]\\
+&= \int_{-\infty}^\infty e^{bXt}f(x)dx \\
+&= \int_{-\infty}^\infty e^{(bt)X}f(x)dx \\
+&= M_X(bt)
+\end{aligned}
+$$
+
+- *(3)*$M_{\frac{X+a}{b}}(t)= E[e^{(\frac{X+a}{b}t)}] = e^{\frac{a}{b}t}M_X(\frac{t}{b})$.
+
+$$
+\begin{aligned}
+M_{\frac{X+a}{b}}(t) &= E[e^{(\frac{X+a}{b})}]\\
+&= \int_{-\infty}^\infty e^{(\frac{X+a}{b})}f(x)dx\\
+&= \int_{-\infty}^\infty e^{\frac{Xt}{b}}e^{\frac{at}{b}}f(x)dx\\
+&= e^{\frac{at}{b}}\int_{-\infty}^\infty e^{X\frac{t}{b}}f(x)dx \\
+&= e^{\frac{at}{b}}M_X(\frac{t}{b})
+\end{aligned}
+$$
+

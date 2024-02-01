@@ -1,0 +1,86 @@
+---
+title: "**Homework 3**"
+subtitle: "MSSC 6010- Computational Probability"
+date: today
+date-format: long
+author: "Henri Medeiros Dos Reis"
+format: 
+  pdf:
+    pdf-engine: pdflatex ## have bold font
+fontsize: 12pt
+fontfamily: libertinus
+geometry: margin=1in
+documentclass: article
+code-block-bg: "#202121"
+highlight-style: arrow-dark
+---
+
+::: {.hidden}
+\def\bx{\mathbf{x}}
+\def\bX{\mathbf{X}}
+\def\bg{\mathbf{g}}
+\def\bw{\mathbf{w}}
+\def\bb{\mathbf{b}}
+\def\bu{\mathbf{u}}
+\def\bbeta{\boldsymbol \beta}
+\def\bgamma{\boldsymbol \gamma}
+\def\bep{\boldsymbol \epsilon}
+\def\bH{\mathbf{H}}
+\def\bX{\mathbf{X}}
+\def\by{\mathbf{y}}
+\def\bH{\mathbf{H}}
+\def\bI{\mathbf{I}}
+\def\bS{\mathbf{S}}
+\def\bU{\mathbf{U}}
+\def\bV{\mathbf{V}}
+\def\bW{\mathbf{W}}
+\def\bD{\mathbf{D}}
+\def\T{\text{T}}
+\def\cov{\mathrm{Cov}}
+\def\cor{\mathrm{Corr}}
+\def\var{\mathrm{Var}}
+\def\E{\mathrm{E}}
+\def\P{\mathbb{P}}
+\def\bmu{\boldsymbol \mu}
+<!-- \DeclareMathOperator*{\argmin}{arg\,min} -->
+\def\Trace{\text{Trace}}
+:::
+
+**Question 1.** (3.6.39) From book. Let the random variable $X$ be the sum of the numbers on two fair dice. Find an upper bound on $\P(|X-7|\geq4|)$ using Chebyshev's Inequality as well as the exact probability for $\P(|X-7|\geq4|)$. 
+
+```{r}
+X = c(2,3,4,5,6,7,8,9,10,11,12)
+X = rbind(X,c(1/36,2/36,3/36,4/36,5/36,6/36,5/36,4/36,3/36,2/36,1/36))
+table(X)
+```
+
+
+**Question 2.** (3.6.48) From book. Consider the random variable $X$, which takes the values $1,2,3,$ and $4$ with probabilities $0.2,0.3,0.1,$ and $0.4$, respectively. Calculate $E[X]$, $\frac{1}{E[X]}$,$E\left[\frac{1}{X}\right]$,$E[X^2]$, and $E[X]^2$, and check empirically that $E[X]^2 \neq E[X^2]$ and $\frac{1}{E[X]}\neq E\left[\frac{1}{X}\right]$
+
+**Question 3.** (3.6.50) From book. Find the values of $k$ such that the following functions are probability density functions. 
+
+- *(a)* $f(x) = \frac{kx^4}{5}, 0<x<1$
+
+**Question 4.** (3.6.52) From book. Consider an experiment where two dice are rolled. Let the random variable $X$ equal the sum of the two dice and the random variable $Y$ be the difference of the two dice. 
+
+- *(a)* Find the mean of $X$
+- *(b)* Find the variance of $X$
+- *(c)* Find the skewness of $X$
+- *(d)* Find the mean of $Y$
+- *(e)* Find the variance of $Y$
+- *(f)* Find the skewness of $Y$
+
+
+**Question 5.** (3.6.58) From book. Consider the probability density function 
+
+$$
+f(x) = \frac{1}{36}xe^{\frac{-x}{6}}, x>0
+$$
+
+Derive the moment generating function, and calculate the mean and the variance. 
+
+**Question 6.** (3.6.60) From book. Prove that if $a$ and $b$ are real-valued constants, then 
+
+- *(1)*$M_{X+a}(t) = E[e^{(X+a)t}]=e^{at}M_X(t)$.
+- *(2)*$M_{bX}(t) = E[e^{bXt}]= M_X(bt)$.
+- *(3)*$M_{\frac{X+a}{b}}(t)= E[e^{(\frac{X+a}{b}t)}] = e^{\frac{a}{b}t}M_X(\frac{t}{b})$.

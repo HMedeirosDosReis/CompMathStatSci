@@ -1,0 +1,261 @@
+---
+title: "**Homework 4**"
+subtitle: "MSSC 6010- Computational Probability"
+date: today
+date-format: long
+author: "Henri Medeiros Dos Reis"
+format: 
+  pdf:
+    pdf-engine: pdflatex ## have bold font
+    highlight: zenburn
+fontsize: 12pt
+fontfamily: libertinus
+geometry: margin=1in
+documentclass: article
+code-block-bg: "#202121"
+highlight-style: arrow-dark
+---
+
+::: {.hidden}
+\def\bx{\mathbf{x}}
+\def\bX{\mathbf{X}}
+\def\bg{\mathbf{g}}
+\def\bw{\mathbf{w}}
+\def\bb{\mathbf{b}}
+\def\bu{\mathbf{u}}
+\def\bbeta{\boldsymbol \beta}
+\def\bgamma{\boldsymbol \gamma}
+\def\bep{\boldsymbol \epsilon}
+\def\bH{\mathbf{H}}
+\def\bX{\mathbf{X}}
+\def\by{\mathbf{y}}
+\def\bH{\mathbf{H}}
+\def\bI{\mathbf{I}}
+\def\bS{\mathbf{S}}
+\def\bU{\mathbf{U}}
+\def\bV{\mathbf{V}}
+\def\bW{\mathbf{W}}
+\def\bD{\mathbf{D}}
+\def\T{\text{T}}
+\def\cov{\mathrm{Cov}}
+\def\cor{\mathrm{Corr}}
+\def\var{\mathrm{Var}}
+\def\E{\mathrm{E}}
+\def\P{\mathbb{P}}
+\def\bmu{\boldsymbol \mu}
+<!-- \DeclareMathOperator*{\argmin}{arg\,min} -->
+\def\Trace{\text{Trace}}
+:::
+
+**Question 1.** (4.4.11) From book. Traffic volume is an important factor for determining the most cost-effective method to surface a road. Suppose that the average number of vehicles passing a certain point on a road is 2 every 30 seconds. 
+
+
+- *(a)* Find the probability that more than 3 cars will pass the point in 30 seconds. 
+
+Since we are looking at how many times an event happens in a fixed amount of time, we are looiking at a Poisson Distribution. The event $X$ is when the number of cars that passes every 30 second, and $E[X]=2=\lambda$ in Poisson. 
+
+$$
+X\sim \mathrm{Pois}(2), t = \text{ 30 seconds}
+$$
+$$
+P(X>3) = 1-P(X\leq3)
+$$
+```{r}
+1-ppois(3,2)
+```
+
+
+- *(b)* What is the probability that more than 10 cars pass the point in 3 minutes?
+
+$$
+X\sim \mathrm{Pois}(2(6t)) = X\sim \mathrm{Pois}(12)
+$$
+$$
+P(x>10) = 1-P(X\leq10)
+$$
+```{r}
+1-ppois(10,12)
+```
+
+\newpage
+
+**Question 2.** (4.4.17) From book. Derive the mean and variance for the discrete uniform distribution. 
+(Hints: $\sum_{i=1}^nx_i=\frac{n(n+1)}{2}$; $\sum_{i=1}^nx_i^2=\frac{n(n+1)(2n+1)}{6}$, when $x=1,2,...,n$.)
+
+$$
+P(X=x_i|n=n) = \frac{1}{n}, i=1,2,...,n
+$$
+
+First, let's find the mean
+$$
+\begin{aligned}
+E[X] &= \sum_{i=1}^n x_i(\frac{1}{n})\\
+&= \frac{1}{n}\sum_{i=1}^n x_i\\
+&= \frac{1}{n}\frac{n(n+1)}{2}\\
+&= \frac{n+1}{2}
+\end{aligned}
+$$
+
+Now, the variance
+$$
+\begin{aligned}
+Var(X) &= E[X^2]-E[X]^2 \\
+&= \sum_{i=1}^n x_i^2(\frac{1}{n}) - \left(\frac{n+1}{2}\right)^2 \\
+&= (\frac{1}{n})\sum_{i=1}^n x_i^2- \left(\frac{n+1}{2}\right)^2\\
+&= \frac{1}{n}\frac{n(n+1)(2n+1)}{6}- \left(\frac{n+1}{2}\right)^2 \\
+&= \frac{2n^2+3n+1}{6}-\frac{n^2+2n+1}{2} \\
+&= \frac{4n^2+6n+2-3n^2-6n-3}{12}\\
+&= \frac{n^2-1}{12}
+\end{aligned}
+$$
+\newpage
+
+
+**Question 3.** (4.4.18) From book. Suppose the percentage of drinks sold from a vending machine are $80%$ and $20%$ for soft drinks and bottled water, respectively. 
+
+
+- *(a)* What is the probability that on a randomly selected day the first soft drink is the fourth drink sold?
+
+Drinks are either soft drink or water. Which are mutually exclusive and exhaustive. Which would make it a Bernoulli trial. Since we want the probability of a number of failures before the $r^{th}$ success, we can use Negative Binomial. 
+$$
+X\sim NB(r,\pi) \Rightarrow \P(X= 3|1,0.8)
+$$
+
+```{r}
+dnbinom(x = 3, size = 1, prob = 0.8)
+```
+
+
+- *(b)* Find the probability that exactly 1 out of 10 drinks sold is a soft drink. 
+
+Now, we can use a Binomial distribution to find this probability. Since it does not matter when the success happens, but only that there is one success out of 10 trials. 
+
+$$
+X\sim Bin(n,\pi) \Rightarrow \P(X= 1|10,0.8)
+$$
+
+```{r}
+dbinom(x = 1, size = 10, prob = 0.8)
+```
+
+
+- *(c)* Find the probability that the fifth soft drink is the seventh drink sold 
+
+Use Negative Binomial again, were $r=5$ is the number of successes, and $x=7-r=2$ the number of failures 
+
+$$
+X\sim NB(r,\pi) \Rightarrow \P(X= 2|5,0.8)
+$$
+```{r}
+dnbinom(x = 2, size= 5, 0.8)
+```
+
+
+- *(d)* Verify empirically that $\P(Bin(n,\pi)\leq r-1) = 1-\P(NB(r,\pi)\leq(n-r))$, with $n=10,\pi = 0.8$, and $r=4$. 
+
+To verify, we just look at the values
+
+```{r}
+n = 10
+pi = 0.8
+r = 4
+
+sum(dbinom(x = seq(0,r-1), size = n, prob = pi))
+1-sum(dnbinom(x = seq(0,n-r), size = r, prob = pi))
+```
+As we can see, those are the same values. 
+
+
+**Question 4.** (4.4.38) From book. Consider the function $g(x) = (x-a)^2$, where $a$ is a constant and $E[(X-a)^2]$ is finite. Find $a$ so that $E[(X-a)^2] is minimized. 
+
+$$
+\begin{aligned}
+E[(X-a)^2] = \sum_{\forall x}(x-a)^2p(x)
+\end{aligned}
+$$
+
+To minimize, we take the derivative with respect to a, and set it equal to 0 
+
+$$
+\begin{aligned}
+0 &= \frac{d}{da}\sum_{\forall x}(x-a)^2p(x)\\
+&= \sum_{\forall x}-2(x-a)p(x)\\
+&= E[-2(x-a)]\\
+&= -2E[(x-a)]\\
+&= E[(x-a)]\\
+&= E[x]-E[a]\\
+\Rightarrow E[x] &= E[a], \text{ since a is a constant}\\
+a &= E[x]
+\end{aligned}
+$$
+**Question 5.** (4.4.40) From book. If $X\sim Bin(n,\pi)$, use the binomial expansion to find the mean and variance of $X$. To find the variance, use the second factorial moment $E[X(X-1)]$ and note that $\frac{x}{x!}= \frac{1}{(x-1)!}$ when $x>0$
+
+First, let's find the mean. 
+
+$$
+\begin{aligned}
+E[X] &= \sum_{x=0}^n x\left(\frac{n!}{x!(x-n!)}\right)\pi^x(1-\pi)^{n-x}\\
+&= \sum_{x=0}^n \left(\frac{n!}{(x-1)!(x-n!)}\right)\pi^x(1-\pi)^{n-x}\\
+&= n\sum_{x=0}^n \left(\frac{(n-1)!}{(x-1)!(x-n!)}\right)\pi^x(1-\pi)^{n-x}\\
+&= n\sum_{x=0}^n {n-1 \choose x-1}\pi^x(1-\pi)^{n-x}\\
+&= n\pi\sum_{x=0}^n {n-1 \choose x-1}\pi^{x-1}(1-\pi)^{n-x}\\
+&= n\pi\sum_{x=0}^{n-1} {n-1 \choose x}\pi^{x-1+1}(1-\pi)^{n-1-x}\\
+\end{aligned}
+$$
+
+
+Then, we can use the binomial theorem to help the simplification. [^1]
+
+$$
+\begin{aligned}
+(x+y)^n &= \sum_{k=0}^n {n \choose k} y^kx^{n-k}\\
+(x+y)^{n-1}&= \sum_{k=0}^{n-1} {n-1 \choose k} y^kx^{n-1-k}\\
+\end{aligned}
+$$
+Which makes it simplifies to 
+
+$$
+\begin{aligned}
+E[X]
+&= n\pi\sum_{x=0}^{n-1} {n-1 \choose x}\pi^{x-1+1}(1-\pi)^{n-x+1}\\
+&= n\pi(\pi+(1-\pi))^{n-1}\\
+&= n\pi(1)^{n-1}\\
+&= n\pi
+\end{aligned}
+$$
+
+[^1]: I got stuck on this part and searched how to go from there and found the following website. I used the third answer to the question.  https://math.stackexchange.com/questions/3400388/proving-that-the-expectation-of-a-binomial-random-variable-is-np.
+
+
+Now variance. First lets compute $E[X(X-1)]$
+
+$$
+\begin{aligned}
+E[X(X-1)] &= \sum_{x=0}^n x(x-1)\left(\frac{n!}{x!(x-n!)}\right)\pi^x(1-\pi)^{n-x}\\
+&= \sum_{x=0}^n\left(\frac{n!}{(x-2)!(x-n!)}\right)\pi^x(1-\pi)^{n-x}\\
+&= n(n-1)\sum_{x=0}^n\left(\frac{(n-2)!}{(x-2)!(x-n!)}\right)\pi^x(1-\pi)^{n-x}\\
+&= n(n-1)\sum_{x=0}^n{n-2 \choose x-2}\pi^x(1-\pi)^{n-x}\\
+&= n(n-1)\pi^2\sum_{x=0}^n{n-2 \choose x-2}\pi^{x-2}(1-\pi)^{n-x}\\
+&= n(n-1)\pi^2\sum_{x=0}^{n-2}{n-2 \choose x}\pi^{x-2+2}(1-\pi)^{n-2-x}\\
+&= n(n-1)\pi^2(\pi(1-pi))^{n-2} \text{, by binomial theorem} \\
+&= n(n-1)\pi^2
+\end{aligned}
+$$
+
+
+Then computing the variance gives
+
+$$
+\begin{aligned}
+Var(X) &= E[X^2]-E[X]^2 \\
+&= E[X^2-X+X]-E[X]^2 \\
+&= E[X(X-1)]+E[X]-E[X]^2 \\
+&= E[X(X-1)]+E[X](1-E[X])\\
+&= n(n-1)\pi^2+n\pi(1-n\pi)\\
+&= (n\pi)^2-n\pi^2+n\pi-(n\pi)^2\\
+&= -n\pi^2+n\pi\\
+&= n\pi(1-\pi)
+\end{aligned}
+$$
+
+

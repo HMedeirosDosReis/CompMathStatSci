@@ -1,0 +1,120 @@
+ACTIVITY 9: Stiff differential equations
+Consider the differential equation dy/dt=10(1-y), y(0)=1/2. 
+This is a linear first order equation. Solve the problem analytically using an integrating factor. Sketch in the solution to the problem.
+
+
+Consider solving this problem using Euler’s method. Then we have
+       y_(i+1)=y_i+h 10 (1- y_i )=y_i (1-10h)+10h .
+Note that if the method were converging, we would have
+        y_(i+1)?y_i=w say. 
+So the problem looks like 	w=w(1-10h)+10h,
+which is a fixed point problem, w=g(w). Provide a check that the fixed point is w=1. 
+
+
+
+
+
+
+
+
+We know that fixed point iteration will converge for |g^' (1)|<1.  Determine the values of h for which this inequality is true. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Solve this differential equation using Euler’s method on t ?[0,2] using first an h that is too large, and then an appropriately small h. Include a plot of both “solutions” here. 
+
+
+
+
+
+As we discussed earlier, this problem is numerically unstable, when h is “large”. We have here an example of a “stiff” differential equation. There is not a precise mathematical definition of stiff, but here are some statements that “characterize” stiffness:
+	? The stability requirement of the problem constrains h, rather than the accuracy (truncation error requirement) constraining h. (For example, in our differential equation we have not set any constraint on the size of the truncation error, but rather you have determined that you need h to be sufficiently small just to obtain a “stable” solution.) 
+	? A problem is stiff if its solution is composed of some terms that are decaying very rapidly compared to others. (For example, if the solution had an e^(-t)and an e^(-10t)term in it.)
+       ? From the above statement, we can see that stiffness also suggests that there are regions of t where h must be excessively small relative to the smoothness of the exact solution. (In the example where the solution has an e^(-t)and an e^(-10t)term in it, we could use a large h for large t, but would need a very small h for very small t, in order accurately capture the solution.)  
+Neither Euler nor RK, including ode45, are suitable for stiff equations. Instead we introduce the Backward Euler Method, which uses the slope of the solution at the right-hand endpoint (instead of the left as in regular Euler) in Euler’s formula. This gives	
+       y_(i+1)=y_i+h f(t_(i+1), y_(i+1) ).
+The only problem is that we don’t y_(i+1) so how can we possibly plug it in on the RHS? This is an example of an implicit method, rather than the explicit methods we have considered previously. 
+Consider our example. In this case Backward Euler gives y_(i+1)=y_i+h 10(1-y_(i+1)) . Solve this for y_(i+1). 
+
+
+
+
+Again, by letting y_(i+1)?y_i=w, this can be written as a fixed point problem. What is g in this case? 
+
+
+
+
+
+Show that this fixed point iteration converges for all h > 0. 
+
+
+Write matlab code to solve our example problem using Backward Euler. Run it using the same two values of h that you used previously for regular Euler. Include your code and the graphs of the solution here.
+
+
+Of course, generally it will not be so easy to rewrite the problem so that we can use Backward Euler. So some other strategy will be necessary to solve the problem, for example fixed point iteration or Newton’s method.
+Backward Euler is a first order method, just like Euler. We can extend Backward Euler to a 2nd order method (just as we did for Euler to get Heun’s method for example.) We could then develop the corresponding 2nd order implicit method, which would be suitable for stiff equations. In matlab, ode23s can be used for solving stiff equations (note the s). It’s like ode45 in that it compares RK2 and RK3 (rather than RK4 and RK5) to determine the appropriate h. 
+Another example:	 dy/dt=-21y+e^(-t), y(0)=0.
+Solve this problem using Euler’s method on t ?[0,2] with h = 0.01 and again with h = 0.1. You should see that the problem is stiff. Paste the graphs of the solutions here.
+
+
+
+
+
+
+
+
+
+
+
+
+Solve the problem analytically using an integrating factor to obtain the exact solution. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Discuss what you observe about the analytic solution and the numerical solution that suggest the problem is stiff. 
+
+
+
+
+
+
+
+
+Finally, modify your matlab code that uses ode45 to instead use ode23s for this problem. The syntax for ode23s is exactly the same as that for ode45. Include your code and a graph of the solution here. 
+
+8
+
+

@@ -1,0 +1,278 @@
+---
+title: "**Homework 6**"
+subtitle: "MSSC 6010- Computational Probability"
+date: today
+date-format: long
+author: "Henri Medeiros Dos Reis"
+format: 
+  pdf:
+    pdf-engine: pdflatex ## have bold font
+    highlight: zenburn
+fontsize: 12pt
+fontfamily: libertinus
+geometry: margin=1in
+documentclass: article
+code-block-bg: "#202121"
+highlight-style: arrow-dark
+---
+
+::: {.hidden}
+\def\bx{\mathbf{x}}
+\def\bX{\mathbf{X}}
+\def\bg{\mathbf{g}}
+\def\bw{\mathbf{w}}
+\def\bb{\mathbf{b}}
+\def\bu{\mathbf{u}}
+\def\bbeta{\boldsymbol \beta}
+\def\bgamma{\boldsymbol \gamma}
+\def\bep{\boldsymbol \epsilon}
+\def\bH{\mathbf{H}}
+\def\bX{\mathbf{X}}
+\def\by{\mathbf{y}}
+\def\bH{\mathbf{H}}
+\def\bI{\mathbf{I}}
+\def\bS{\mathbf{S}}
+\def\bU{\mathbf{U}}
+\def\bV{\mathbf{V}}
+\def\bW{\mathbf{W}}
+\def\bD{\mathbf{D}}
+\def\T{\text{T}}
+\def\cov{\mathrm{Cov}}
+\def\cor{\mathrm{Corr}}
+\def\var{\mathrm{Var}}
+\def\E{\mathrm{E}}
+\def\P{\mathbb{P}}
+\def\bmu{\boldsymbol \mu}
+<!-- \DeclareMathOperator*{\argmin}{arg\,min} -->
+\def\Trace{\text{Trace}}
+:::
+
+**Question 1.** (5.8.14) From book. Given the joint density function 
+$$
+f(x,y) = 6x, \quad 0<x<y<1
+$$
+find the $E[Y|X]$ that is the regression line resulting from regressing Y on X. 
+
+First let's compute the marginals
+
+$$
+f_X(x) = \int_{-\infty}^\infty f_{X,Y}(x,y)dy = \int_x^16xdy = 6x(1-x)
+$$
+$$
+f_Y(y) = \int_{-\infty}^\infty f_{X,Y}(x,y)dx = \int_0^y 6xdx = 3y^2
+$$
+then the conditional pdf 
+
+$$
+f_{Y|X}(y|x) = \frac{f_{X,Y}(x,y)}{f_X(x)} = \frac{6x}{6x(1-x)} = \frac{1}{1-x}, 0<x<y<1
+$$
+$$
+E[Y|X] = \int_0^1y(\frac{1}{1-x})dy = \frac{y^2}{2(1-x)}\Bigg|_0^1 = \frac{1}{2(1-x)}
+$$
+
+**Question 2.** (5.8.17) From book. If $f(x,y) = e^{-(x+y)}, x>0$ and $y>0$, find $\P(X+3>Y|X>\frac{1}{3})$.
+
+From conditional probability, we get
+$$
+\P(X+3>Y|X>\frac{1}{3}) = \frac{\P(X+3>Y,X>\frac{1}{3})}{\P(X>\frac{1}{3})}
+$$
+Let's first compute  $\P(X>\frac{1}{3})$
+
+$$
+f_X(x) = \int_0^\infty e^{-(x+y)}dy = e^{-x}\int_0^\infty e^{-y}dy = e^{-x}
+$$
+
+$$
+\P(X>\frac{1}{3}) = \int_{\frac{1}{3}}^\infty e^{-x}dx = e^{\frac{-1}{3}}
+$$
+Now $\P(X+3>Y,X>\frac{1}{3})$
+$$
+\begin{aligned}
+\P(X+3>Y,X>\frac{1}{3}) &= \int_{\frac{1}{3}}^\infty \int_0^{x+3}e^{-(x+y)}dydx\\
+&= \int_{\frac{1}{3}}^\infty e^{-x}\int_0^{x+3}e^{-y}dydx \\
+&= \int_{\frac{1}{3}}^\infty -e^{-x}e^{-(x+3)}+e^{-x}dx\\
+&= \int_{\frac{1}{3}}^\infty -e^{-(2x+3)}+e^{-x}dx\\
+&= \left(\frac{e^{-(2x+3)}}{2}-e^{-x}\right)\Big|_{\frac{1}{3}}^\infty \\
+&= -\frac{e^{-(2/3+3)}}{2}+e^{-1/3}
+\end{aligned}
+$$
+Plugging back to the conditional probability, we get 
+$$
+\begin{aligned}
+\P(X+3>Y|X>\frac{1}{3}) &= \frac{\P(X+3>Y,X>\frac{1}{3})}{\P(X>\frac{1}{3})}\\
+&= \frac{-\frac{e^{-(2/3+3)}}{2}+e^{-1/3}}{e^{-1/3}}\\ &= 
+0.982163
+\end{aligned}
+$$
+**Question 3.** (5.8.26) From book.Given the joint density function $f_{X,Y}(x,y) = x+y, 0\leq x\leq 1,0\leq y\leq 1$, 
+
+- *(a)* Show that $f_{X,Y}(x,y)\geq0$ for all x and and that $\int_{-\infty}^{\infty} \int_{-\infty}^{\infty}f_{X,Y}(x,y)dxdy=1$. 
+
+The smallest $f_{X,Y}(x,y) $ can ever be is whenever x and y are the smallest it can ever be, since it is addition. Therefore since $x\geq 0$ and $y\geq0$, $f_{X,Y}(x,y)$ is the smallest value at $x=y=0$ then $f_{X,Y}(x,y)\geq0$ 
+
+$$
+\begin{aligned}
+\int_{-\infty}^\infty\int_{-\infty}^\infty f_{X,Y}(x,y)dxdy &= \int_0^1\int_0^1x+ydxdy\\
+&= \int_0^1(\frac{1}{2}+y)dy\\
+&= \frac{1}{2}+\frac{1}{2}\\
+&= 1
+\end{aligned}
+$$
+
+- *(b)* Find the cumulative distribution function.
+
+$$
+\begin{aligned}
+F_{X,Y}(x,y) &= \int_{-\infty}^x\int_{-\infty}^y f_{X,Y}(r,s)dsdr\\
+&= \int_0^x\int_0^yr+sdsdr\\
+&= \int_0^x(rs+\frac{s^2}{2})\Big|_0^ydr \\
+&=  \int_0^x(ry+\frac{y^2}{2})dr\\
+&= \frac{yx^2}{2}+\frac{y^2x}{2}
+\end{aligned}
+$$
+
+- *(c)* Find the marginal means of X and Y.
+
+$$
+f_X(x) =  \int_{-\infty}^\infty f_{X,Y}(x,y)dy = \int_0^1x+ydy = x+\frac{1}{2}
+$$
+$$
+E[X] = \int_0^1x(x+\frac{1}{2}) = (\frac{x^3}{3}+\frac{x^2}{4})|_0^1 = \frac{1}{3}+\frac{1}{4}
+$$
+$$
+f_Y(y) =  \int_{-\infty}^\infty f_{X,Y}(x,y)dx = \int_0^1x+ydx = y+\frac{1}{2}
+$$
+$$
+E[Y] = \int_0^1y(y+\frac{1}{2}) = (\frac{y^3}{3}+\frac{y^2}{4})|_0^1 = \frac{1}{3}+\frac{1}{4}
+$$
+
+- *(d)* Find the marginal variances of X and Y.
+
+$$
+E[X^2] = \int_0^1x^2(x+\frac{1}{2}) = (\frac{x^4}{4}+\frac{x^3}{6})|_0^1 = \frac{1}{4}+\frac{1}{6}
+$$
+$$
+Var(X) = \frac{1}{4}+\frac{1}{6}-(\frac{1}{3}+\frac{1}{4})^2 = \frac{11}{144}
+$$
+$$
+E[Y^2] = \int_0^1y^2(y+\frac{1}{2}) = (\frac{y^4}{4}+\frac{y^3}{6})|_0^1 = \frac{1}{4}+\frac{1}{6}
+$$
+$$
+Var(Y) = \frac{1}{4}+\frac{1}{6}-(\frac{1}{3}+\frac{1}{4})^2 = \frac{11}{144}
+$$
+
+**Question 4.** (5.8.31) From book. Let X and Y have joint density function 
+
+$$
+f_{X,Y}(x,y) = \Bigg\{\begin{matrix}Ky && -2\leq x\leq2, 1\leq y\leq x^2 \text{ and}\\ 0 && \text{otherwise} \end{matrix}
+$$
+
+- *(a)* Find K such that $f_{X,Y}(x,y)$ is a valid pdf. 
+
+Since $1\leq y  \leq x^2$, then $x^2 \geq 1$, so $x\geq 1$ or $x\leq -1$, then combining with the original constraint we have $1\leq x\leq 2$ and $-2\leq x\leq-1$ so
+
+$$
+\begin{aligned}
+1 &= \int_1^2\int_1^{x^2}Kydydx +\int_{-2}^{-1}\int_1^{x^2}Kydydx\\
+&= K\int_1^2(\frac{x^4}{2}-\frac{1}{2})dx+K\int_{-2}^{-1}(\frac{x^4}{2}-\frac{1}{2})dx\\
+&= K(\frac{x^5}{10}-\frac{x^2}{4})|_1^2+K(\frac{x^5}{10}-\frac{x^2}{4})|_{-2}^{-1}\\
+&= K(\frac{62}{10}-\frac{2}{10})\\K&=\frac{10}{62} 
+\end{aligned}
+$$
+
+- *(b)* Find the marginal densities of X and Y
+
+$$
+\begin{aligned}
+f_X(x) &= \int_{-\infty}^\infty f_{X,Y}(x,y) dy\\
+&= \int_1^{x^2}\frac{10}{62}ydy \\
+&= \frac{10}{62}(\frac{x^4}{2}-\frac{1}{2})\\
+&= \Bigg\{\begin{matrix}\frac{10}{62}(\frac{x^4}{2}-\frac{1}{2}) &&\text{ if }-2 \leq x \leq -1 \text{ or } 1\leq x\leq2 \\ 0&& \text{else}
+\end{matrix}
+\end{aligned}
+$$
+
+Since $1\leq y\leq x^2$, then $1\leq(y)^{1/2}\leq x$, then $-2 \leq -\sqrt{y}\leq x$, and $x\leq \sqrt{y}\leq 2$, so
+
+$$
+\begin{aligned}
+f_Y(y) &= \int_{-2}^{-\sqrt{y}}\frac{10}{62}ydx+\int_{\sqrt{y}}^2\frac{10}{62}ydx\\
+&= \frac{10}{62}y(-\sqrt{y}+2+2-\sqrt{y})\\
+&= \Bigg\{\begin{matrix}\frac{10}{62}y(-2\sqrt{y}+4) && \text{if }-2 \leq -\sqrt{y}\leq-1 \text{ or }1\leq \sqrt{y}\leq 2\\0 &&\text{else}
+\end{matrix}\\
+&= \Bigg\{\begin{matrix}\frac{10}{62}y(-2\sqrt{y}+4) && \text{if }1\leq y\leq 4\\0 &&\text{else}
+\end{matrix}
+\end{aligned}
+$$
+
+- *(c)* Find $\P(Y>\frac{3}{2}|X<\frac{1}{2})$
+
+Since y values are $\frac{3}{2} \leq y\leq x^2$, and x values are $-2 \leq y \leq -1$, since $-1<\frac{1}{2}$. Then 
+
+$$
+\begin{aligned}
+\P(Y>\frac{3}{2}|X<\frac{1}{2}) &= \frac{\int_{-2}^{-\sqrt{3/2}}\int_{3/2}^{x^2}\frac{10}{62}ydydx}{\int_{-2}^{-1}\frac{10}{62}(x^4/4-1/2)dx}\\
+&= \frac{\int_{-2}^{-\sqrt{3/2}}\int_{3/2}^{x^2}ydydx}{\int_{-2}^{-1}(x^4/4-1/2)dx}\\
+&= \frac{\int_{-2}^{-\sqrt{3/2}}(y^2/2)\Big|_\frac{3}{2}^{x^2}dx}{(\frac{-1}{10}+\frac{1}{2})-(\frac{-2^5}{10}+1)}\\
+&= \frac{\left(\frac{x^5}{10}-\frac{(3/2)^2}{2}x\right)\Big|_{-2}^{-\sqrt{3/2}}}{26/10}\\
+&= 0.789335
+\end{aligned}
+$$
+
+
+**Question 5.** (5.8.32) From book. An engineer has designed a new diesel motor that is used in a prototype earth mover. The prototype's diesel consumption in gallons per mile C follows the equation $C=3+2X+\frac{3}{2}Y$, where X is a speed coefficient and Y is the quality diesel coefficient. Suppose the joint density for X and Y is $f_{X,Y}(x,y) = ky, 0\leq x\leq 2 , 0\leq y \leq x$. 
+
+- *(a)*  find k so that $f_{X,Y}(x,y)$ is a valid density function.
+
+$$
+\begin{aligned}
+1 &= \int_0^2\int_0^x kydydx\\
+&= k\int_0^2\frac{x^2}{2}dx\\
+&= k\frac{8}{6}\\
+k &= \frac{3}{4}
+\end{aligned}
+$$
+
+- *(b)* Are X and Y independent?
+
+$$
+f_X(x) = \int_0^x\frac{3}{4}ydy  = \frac{3}{8}x^2
+$$
+
+$$
+f_Y(y) = \int_y^2\frac{3}{4}ydy = \frac{6}{4}y-\frac{3}{4}y^2
+$$
+
+Since $f_{X,Y}(x,y) \neq f_X(x)f_Y(y) = \frac{3}{8}x^2(\frac{6}{4}y-\frac{3}{4}y^2)$, then they are not independent
+
+
+- *(c)*  Find the mean diesel consumption for the prototype.
+
+Since the diesel consumption $C = 3+2X+\frac{3}{2}Y$, we need to find $E[C]$
+
+$$
+\begin{aligned}
+E[ 3+2X+\frac{3}{2}Y] &= E[3]+2E[X]+\frac{3}{2}E[Y]\\
+&= 3+2\int_0^2x\frac{3}{8}x^2dx+\frac{3}{2}\int_0^2y(\frac{6}{4}y-\frac{3}{4}y^2)dy\\
+&= 3+2\frac{3}{8}(\frac{2^4}{4})+\frac{3}{2}(\frac{6}{4}\frac{2^3}{3}-\frac{3}{4}\frac{2^4}{4})
+\\&= 6+\frac{3}{2}\\
+&= \frac{15}{2}
+\end{aligned}
+$$
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
