@@ -1,0 +1,53 @@
+---
+title: | 
+  | \vspace{-1.8cm} MSSC 5931 Homework 3
+output: 
+  pdf_document:
+    number_sections: true
+fontsize: 11pt
+geometry: margin=1in
+documentclass: article
+---
+
+\begin{center}
+\textbf{Henrique Medeiros Dos Reis}
+\\
+\textbf{\today}
+\end{center}
+
+1. \textbf{\textcolor{blue}{Iteratively reweighted least squares for 1-norm approximation.}}
+
+\quad\quad\ **Solution: ** 
+\begin{enumerate}[a]
+\item
+re
+\item
+re
+
+2. \textbf{\textcolor{blue}{Estimating a signal with interference.}}
+
+\quad\quad\ **Solution: ** 
+
+3. \textbf{\textcolor{blue}{Identifying a system from input/output data.}}
+
+\quad\quad\ **Solution: ** 
+
+4. \textbf{\textcolor{blue}{Robust input design.}}
+
+\quad\quad\ **Solution: ** 
+
+5. \textbf{\textcolor{blue}{Householder reflections.}}
+
+\quad\quad\ **Solution: ** 
+
+6. \textbf{\textcolor{blue}{True/false questions about linear algebra.}}
+
+\quad\quad\ **Solution: ** 
+
+7. \textbf{\textcolor{blue}{Least-squares residuals.}}
+
+\quad\quad\ **Solution: ** 
+
+
+
+
