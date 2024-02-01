@@ -1,0 +1,74 @@
+---
+title: "**MSSC 6250 Machine Learning Homework 4**"
+subtitle: "Support Vector Machines, Tree Methods, Unsupervised Learning"
+author: "Henri Medeiros Dos Reis"
+format: 
+  pdf:
+    pdf-engine: pdflatex ## have bold font
+fontsize: 12pt
+fontfamily: libertinus
+geometry: margin=1in
+documentclass: article
+code-block-bg: "#202121"
+highlight-style: arrow-dark
+---
+
+::: {.hidden}
+\def\bx{\mathbf{x}}
+\def\bg{\mathbf{g}}
+\def\bw{\mathbf{w}}
+\def\bb{\mathbf{b}}
+\def\bu{\mathbf{u}}
+\def\bbeta{\boldsymbol \beta}
+\def\bgamma{\boldsymbol \gamma}
+\def\bep{\boldsymbol \epsilon}
+\def\bH{\mathbf{H}}
+\def\bX{\mathbf{X}}
+\def\by{\mathbf{y}}
+\def\bH{\mathbf{H}}
+\def\bI{\mathbf{I}}
+\def\bS{\mathbf{S}}
+\def\bU{\mathbf{U}}
+\def\bV{\mathbf{V}}
+\def\bW{\mathbf{W}}
+\def\bD{\mathbf{D}}
+\def\T{\text{T}}
+\def\cov{\mathrm{Cov}}
+\def\cor{\mathrm{Corr}}
+\def\var{\mathrm{Var}}
+\def\E{\mathrm{E}}
+\def\bmu{\boldsymbol \mu}
+<!-- \DeclareMathOperator*{\argmin}{arg\,min} -->
+\def\Trace{\text{Trace}}
+:::
+
+- Deadline: **Friday, April 28 11:59 PM**
+
+- Homework presentation date: **Tuesday, May 2**
+
+- Please submit your work in **one** **PDF** file to **D2L \> Assessments \> Dropbox**. *Multiple files or a file that is not in pdf format are not allowed.*
+
+- Any relevant code should be attached.
+
+- Read **ISL** Chapter 8, 9, and 12.
+
+
+# Exercises required for all students
+
+1. **ISL** Sec. 8.4: 12 (Don't do BART)
+
+2. **ISL** Sec. 9.7: 3
+
+3. **ISL** Sec. 9.7: 5
+
+4. **ISL** Sec. 12.6: 10
+
+
+# Exercises required for MSSC PhD students
+
+None.
+
+
+# Optional Exercises
+
+None.

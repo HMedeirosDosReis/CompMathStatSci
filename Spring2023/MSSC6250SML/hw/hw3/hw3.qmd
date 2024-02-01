@@ -1,0 +1,83 @@
+---
+title: "**MSSC 6250 Machine Learning Homework 3**"
+subtitle: "Bayesian Regression, Logistic Regression, Generative Models"
+author: "Dr. Cheng-Han Yu"
+format: 
+  pdf:
+    pdf-engine: pdflatex ## have bold font
+fontsize: 12pt
+fontfamily: libertinus
+geometry: margin=1in
+documentclass: article
+---
+
+::: {.hidden}
+\def\bx{\mathbf{x}}
+\def\bg{\mathbf{g}}
+\def\bw{\mathbf{w}}
+\def\bb{\mathbf{b}}
+\def\bu{\mathbf{u}}
+\def\bbeta{\boldsymbol \beta}
+\def\bgamma{\boldsymbol \gamma}
+\def\bep{\boldsymbol \epsilon}
+\def\bH{\mathbf{H}}
+\def\bX{\mathbf{X}}
+\def\by{\mathbf{y}}
+\def\bH{\mathbf{H}}
+\def\bI{\mathbf{I}}
+\def\bS{\mathbf{S}}
+\def\bU{\mathbf{U}}
+\def\bV{\mathbf{V}}
+\def\bW{\mathbf{W}}
+\def\bD{\mathbf{D}}
+\def\T{\text{T}}
+\def\cov{\mathrm{Cov}}
+\def\cor{\mathrm{Corr}}
+\def\var{\mathrm{Var}}
+\def\E{\mathrm{E}}
+\def\bmu{\boldsymbol \mu}
+<!-- \DeclareMathOperator*{\argmin}{arg\,min} -->
+\def\Trace{\text{Trace}}
+:::
+
+- Deadline: **Friday, April 7 11:59 PM**
+
+- Homework presentation date: **Tuesday, April 11**
+
+- Please submit your work in **one** **PDF** file to **D2L \> Assessments \> Dropbox**. *Multiple files or a file that is not in pdf format are not allowed.*
+
+- Any relevant code should be attached.
+
+- Read **ISL** Chapter 4.
+
+
+# Exercises required for all students
+
+1. **ISL** Sec. 4.8: 2
+
+2. **ISL** Sec. 4.8: 3
+
+3. **ISL** Sec. 4.8: 5
+
+4. **ISL** Sec. 4.8: 7
+
+5. **ISL** Sec. 4.8: 10
+
+6. **ISL** Sec. 4.8: 13
+
+7. **ISL** Sec. 4.8: 14
+
+# Exercises required for MSSC PhD students
+
+1. **ISL** Sec. 4.8: 4
+
+2. **ISL** Sec. 4.8: 11
+
+3. **ISL** Sec. 4.8: 16
+
+4. In 250 words, summarize of what you learned in the deep learning workshop.
+
+
+**No more optional exercises because no one tried any in the previous two homework sets. Reach out to me if you love to study more machine learning problems.**
+
+

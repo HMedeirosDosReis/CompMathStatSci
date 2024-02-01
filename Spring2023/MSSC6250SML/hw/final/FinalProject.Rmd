@@ -1,0 +1,231 @@
+---
+title: "Final"
+output: 
+  pdf_document: 
+    keep_tex: yes
+date: "2023-04-30"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+```{r, simulation}
+
+set.seed(1999)
+
+# set parameters
+n <- 50
+b0 <- 0.15
+b1 <- 0.3
+
+xs <- seq(0, 10, 0.05)
+lam <- exp(b0 + b1*xs)
+upperCI <- lam + 1.96*sqrt(lam/n)
+lowerCI <- lam - 1.96*sqrt(lam/n)
+
+probs <- data.frame(
+  x = xs,
+  lam = lam,
+  upperCI = upperCI,
+  lowerCI = lowerCI
+)
+
+# random sample
+x <- runif(n, min = 0, max = 10)
+lam = exp(b0 + b1*x)
+#plot(x, lam)
+
+y = c()
+for (i in 1:n)
+  y[i] <- rpois(1, lam[i])
+
+#plot(x, y)
+smpl <- data.frame(x, y)
+
+ggplot(data = probs, 
+  aes(x = x, y = lam)) + 
+  geom_ribbon(aes(ymin = lam - 1.96*sqrt(lam/n),
+                  ymax = lam + 1.96*sqrt(lam/n)),
+              fill = "steelblue2") +
+  geom_line() +
+  labs(title="Expected Values", x="x", y=expression(lambda))
+
+ggplot(data = smpl, 
+  aes(x = x, y = y)) + 
+  geom_point() +
+  labs(title="Poisson Simulation", x="x", y="y")
+```
+
+
+```{r, poissonreg}
+mod.pois <- glm(
+  y ~ x, 
+  data = smpl,
+  family = poisson
+)
+summary(mod.pois)
+```
+
+```{r, linearreg}
+mod.lm <- lm(
+  y ~ x, 
+  data = smpl,
+)
+summary(mod.lm)
+```
+
+```{r, multilog}
+mod.multilog <- nnet::multinom(
+  y ~ x, 
+  data = smpl)
+summary(mod.multilog)
+
+#summ$coefficients
+#summ$fitted.values
+#predict(multino_fit, newdata = smpl$x, type = "probs")[,1]
+multilog_fit <- predict(mod.multilog, newdata = smpl$x, type = "class")
+multilog_fit <- as.numeric(levels(multilog_fit))[multilog_fit]
+```
+
+```{r, fittedvalues}
+library(reshape2)
+
+data <- data.frame(x, true = y,
+                   lm = mod.lm$fitted.values, 
+                   pois = mod.pois$fitted.values,
+                   log = multilog_fit)
+
+# melt data frame into long format
+mdata <- melt(data, id.vars = 'x', variable.name = "model")
+
+ggplot(data = subset(mdata, model != "true"), 
+  aes(x = x, y = value, color = model)) + 
+  geom_line() +
+  geom_point(data = subset(mdata, model == "true")) +
+  labs(title="Simulation", x="x", y="y") +
+  scale_color_discrete(name="Reg. Model")
+```
+
+```{r, residuals}
+resid <- data.frame(x = x,
+                    lm = mod.lm$residuals, 
+                    pois = mod.pois$residuals,
+                    log = y - multilog_fit)
+
+mres <- melt(resid, id.vars = 'x', variable.name = "model")
+
+ggplot(data = mres,
+  aes(x = x, y = value, color = model)) + 
+  geom_point() +
+  labs(title="Residuals", x="x", y="Residual") +
+  scale_color_discrete(name="Reg. Model")
+
+plot(mod.lm$fitted.values, mod.lm$residuals)
+plot(mod.pois$fitted.values, mod.pois$residuals)
+plot(mod.pois$fitted.values, mod.pois$residuals/sqrt(mod.pois$residuals))
+plot(multilog_fit, resid$log)
+```
+
+```{r, bigsimulation}
+
+# set parameters
+n <- 1000
+
+# random sample
+beta <- matrix(c(log(2), 0.5, 0.2, 1, -0.3), ncol=5)
+#beta <- matrix(c(5, -0.5, 0.2, log(2), -0.3), ncol=5)
+
+x1 <- rnorm(n)
+x2 <- rbinom(n, 1, 0.5)
+x3 <- rnorm(n, mean = 2*x1 + 0.5*x2)
+x4 <- rnorm(n, sd = 2)
+
+#x1 <- rnorm(n, sd = 3)
+#x2 <- rnorm(n, sd = 3)
+#x3 <- rnorm(n, sd = 3)
+#x4 <- rnorm(n, sd = 3)
+
+X <- matrix(c(rep(1,n),x1, x2, x3, x4), ncol = 5)
+lam <- exp(beta %*% t(X) + rnorm(n, sd=0.1))
+
+y <- rpois(n, lam)
+smpl <- data.frame(X, y)
+
+train <- sample(1:n, n/2)
+y.test <- smpl[-train , "y"]
+```
+
+```{r, bigpoisson}
+# fit Poisson regression
+mod.pois <- glm(
+  y ~ .-X1, 
+  data = smpl,
+  family = poisson,
+  subset = train,
+)
+summary(mod.pois)
+
+# fitted values only go to 5 for first beta, some fitted values are negative
+# nevermind^^^
+# forgot to include repsonse type in prediction
+# for second beta, "too many weights" for multilog model 
+
+plot(mod.pois$fitted.values, mod.pois$residuals)
+
+# predict on testing data
+yhat.pois <- predict(mod.pois, newdata = smpl[-train, ], type = "response")
+pois.MSE <- mean((yhat.pois - y.test)^2)
+pois.MSE
+
+plot(yhat.pois, y.test)
+abline(0, 1)
+```
+```{r, biglinearreg}
+mod.lm <- lm(
+  y ~ .-X1,
+  data = smpl,
+  subset = train
+)
+summary(mod.lm)
+
+plot(mod.lm$fitted.values, mod.lm$residuals)
+
+# predict on testing data
+yhat.lm <- predict(mod.lm, newdata = smpl[-train, ])
+lm.MSE <- mean((yhat.lm - y.test)^2)
+lm.MSE
+
+plot(yhat.lm, y.test)
+abline(0, 1)
+```
+```{r, bigmultilog}
+mod.multilog <- nnet::multinom(
+  y ~ .-X1,
+  data = smpl,
+  subset = train)
+#summary(mod.multilog)
+
+#multilog_fit <- predict(mod.multilog, newdata = smpl[-1, -6], type = "class")
+#multilog_fit <- as.numeric(levels(multilog_fit))[multilog_fit]
+
+plot(mod.multilog$fitted.values, mod.multilog$residuals)
+
+# predict on testing data
+#yhat.log <- predict(mod.multilog, newdata = smpl[-train, ])
+yhat.log <- predict(mod.multilog, newdata = smpl[-train,], type = "class")
+yhat.log <- as.numeric(levels(yhat.log))[yhat.log]
+
+log.MSE <- mean((yhat.log - y.test)^2)
+log.MSE
+
+plot(yhat.log, y.test)
+abline(0, 1)
+```
+
+
+```{r, testpredictions}
+
+
+```

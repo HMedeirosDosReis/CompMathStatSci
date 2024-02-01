@@ -1,0 +1,351 @@
+---
+title: "**MSSC 6250 Machine Learning Homework 4**"
+subtitle: "Support Vector Machines, Tree Methods, Unsupervised Learning"
+author: "Henri Medeiros Dos Reis"
+format: 
+  pdf:
+    pdf-engine: pdflatex ## have bold font
+fontsize: 12pt
+fontfamily: libertinus
+geometry: margin=1in
+documentclass: article
+code-block-bg: "#202121"
+highlight-style: arrow-dark
+---
+
+::: {.hidden}
+\def\bx{\mathbf{x}}
+\def\bg{\mathbf{g}}
+\def\bw{\mathbf{w}}
+\def\bb{\mathbf{b}}
+\def\bu{\mathbf{u}}
+\def\bbeta{\boldsymbol \beta}
+\def\bgamma{\boldsymbol \gamma}
+\def\bep{\boldsymbol \epsilon}
+\def\bH{\mathbf{H}}
+\def\bX{\mathbf{X}}
+\def\by{\mathbf{y}}
+\def\bH{\mathbf{H}}
+\def\bI{\mathbf{I}}
+\def\bS{\mathbf{S}}
+\def\bU{\mathbf{U}}
+\def\bV{\mathbf{V}}
+\def\bW{\mathbf{W}}
+\def\bD{\mathbf{D}}
+\def\T{\text{T}}
+\def\cov{\mathrm{Cov}}
+\def\cor{\mathrm{Corr}}
+\def\var{\mathrm{Var}}
+\def\E{\mathrm{E}}
+\def\bmu{\boldsymbol \mu}
+<!-- \DeclareMathOperator*{\argmin}{arg\,min} -->
+\def\Trace{\text{Trace}}
+:::
+
+- Deadline: **Friday, April 28 11:59 PM**
+
+- Homework presentation date: **Tuesday, May 2**
+
+- Please submit your work in **one** **PDF** file to **D2L \> Assessments \> Dropbox**. *Multiple files or a file that is not in pdf format are not allowed.*
+
+- Any relevant code should be attached.
+
+- Read **ISL** Chapter 8, 9, and 12.
+
+
+# Exercises required for all students
+
+1. **ISL** Sec. 8.4: 12 (Don't do BART)
+
+**Solution: **
+
+The chosen data set is Boston, since it is of easy access, and we have worked on it previously.
+
+```{r}
+set.seed(1)
+library(ISLR2)
+summary(Boston)
+```
+Let's try to predict - the per capita crime rate by town. And use MSE as the metric to measure our performance.
+
+```{r}
+train <- sample(nrow(Boston), 0.8 * nrow(Boston))
+test <- -train
+```
+
+Linear regression:
+```{r}
+lm.fit <- lm(crim ~ zn + nox + dis + rad + ptratio + medv, 
+             data = Boston[train,])
+
+lm.prediction <- predict(lm.fit, newdata = Boston[test,])
+(mse <- mean((Boston[test,1]-lm.prediction)^2))
+```
+
+Linear regression gave a MSE of 64.77735.
+
+Boosting: 
+```{r}
+library(gbm)
+gbm.fit <- gbm::gbm(crim ~ zn + nox + dis + rad + ptratio + medv,
+                    data = Boston[train,], 
+                    distribution = "gaussian", n.trees = 300,
+                    shrinkage = 0.5, bag.fraction = 0.8,
+                    cv.folds = 10)
+
+gbm.prediction <- predict(gbm.fit, newdata = Boston[test,])
+(mse <- mean((Boston[test,1]-gbm.prediction)^2))
+```
+Boosting gave a MSE around 54. Which was better than the linear regression model. 
+
+Bagging:
+```{r}
+library(randomForest)
+bag.fit <- randomForest(crim ~ zn + nox + dis + rad + ptratio + medv,
+                          data = Boston[train,],
+                        mtry = 5)
+bag.prediction <- predict(bag.fit, newdata = Boston[test,])
+(mse <- mean((Boston[test,1]-bag.prediction)^2))
+```
+
+Bagging gave a MSE around 52. Which was better than both previous models. 
+
+Random forests:
+```{r}
+rngF.fit <- randomForest(crim ~ zn + nox + dis + rad + ptratio + medv,
+                          data = Boston[train,],
+                        mtry = 2)
+rngF.prediction <- predict(rngF.fit, newdata = Boston[test,])
+(mse <- mean((Boston[test,1]-rngF.prediction)^2))
+```
+Random forests also gave a MSE around 52. 
+
+Therefore, both Random forests and Bagging were the models that resulted in the best performance in this data set. 
+
+
+
+2. **ISL** Sec. 9.7: 3
+
+**Solution: **
+
+*a-)*
+```{r}
+x1 = c(3,2,4,1,2,4,4)
+x2 = c(4,2,4,4,1,3,1)
+colors = c("red", "red", "red", "red", "blue", "blue", "blue")
+plot(x1,x2,col=colors,pch=19)
+```
+
+*b-)*
+Since we are using margin my_classifier. Then we need to look at observations #2, #3 and #5, #6.Since they are the closest to the boundry.
+
+$$
+(2,2), (4,4) \\
+(2,1), (4,3) \\
+$$
+Then just use the equation of the line and rewrite it. 
+$$
+=> (2,1.5), (4,3.5) \\
+b = (3.5 - 1.5) / (4 - 2) = 1 \\
+a = X_2 - X_1 = 1.5 - 2 = -0.5
+$$
+```{r}
+plot(x1,x2,col=colors,pch=19)
+abline(-0.5, 1)
+```
+
+
+*c-)*
+
+The values for $\beta$s: $\beta_0 = 0.5$, $\beta_1=1$, and $\beta_0=-1$
+
+So the rules are:
+
+$0.5 - X_1 + X_2 > 0 \Rightarrow$ Blue and $0.5 - X_1 + X_2 \leq 0 \Rightarrow$ Red
+
+*d-)*
+
+```{r}
+plot(x1,x2,col=colors,pch=19)
+abline(-0.5, 1)
+abline(-1, 1, lty=2)
+abline(0, 1, lty=2)
+```
+
+*e-)*
+There are four support vector for the maximal margin my_classifier.
+
+The observations 2,3,5 and 6. 
+
+*f-)*
+
+Since the seventh observation is not a support vector, any small change to that observation would not affect the hyperplane. 
+
+*g-)*
+
+```{r}
+plot(x1,x2,col=colors,pch=19)
+abline(-0.55, 1)
+```
+$-0.55 - X_1 + X_2 > 0$ 
+
+*h-)*
+```{r}
+plot(x1,x2,col=colors,pch=19)
+points(c(2), c(3), col=c("blue"),pch=19)
+```
+
+
+
+3. **ISL** Sec. 9.7: 5
+
+**Solution: **
+
+*a-)*
+```{r}
+x1 <- runif(500) -0.5
+x2 <- runif(500) -0.5
+y <- 1*(x1**2-x2**2>0)
+```
+
+
+*b-)*
+```{r}
+plot(x1[y==0], x2[y==0], col="red", xlab="X1", ylab="X2", pch=19)
+points(x1[y==1], x2[y==1], col="blue", pch=19)
+```
+
+*c-)*
+```{r}
+glm.fit=glm(y~. ,family='binomial', data=data.frame(x1,x2,y))
+glm.fit
+```
+
+*d-)*
+```{r}
+glm.pred=predict(glm.fit,data.frame(x1,x2))   
+plot(x1,x2,col=ifelse(glm.pred>0,'blue','red'),pch=19)
+```
+
+As expected, by comparing the graphs we can see this model does not do a good job.
+
+*e-)*
+Let's try a polynomial of degree 2. 
+
+```{r}
+glm.fit2=glm(y~poly(x1,2)+poly(x2,2) ,family='binomial', data=data.frame(x1,x2,y))
+```
+
+
+*f-)*
+```{r}
+glm.pred=predict(glm.fit2,data.frame(x1,x2))   
+plot(x1,x2,col=ifelse(glm.pred>0,'blue','red'),pch=19)
+```
+
+
+*g-)*
+```{r}
+library(e1071)
+svm.fit=svm(y~.,data=data.frame(x1,x2,y=as.factor(y)),kernel='linear')
+svm.pred=predict(svm.fit,data.frame(x1,x2),type='response')
+plot(x1,x2,col=ifelse(svm.pred!=0,'blue','red'),pch=19)
+```
+As expected, by comparing the graphs we can see this model does not do a good job, since the relation is not linear.
+
+
+*h-)*
+
+Let's try a polynomial of degree 2.
+```{r}
+svm.fit=svm(y~.,data=data.frame(x1,x2,y=as.factor(y))
+            ,kernel='polynomial',degree=2)
+svm.pred=predict(svm.fit,data.frame(x1,x2),type='response')
+plot(x1,x2,col=ifelse(svm.pred!=0,'blue','red'),pch=19)
+```
+As expected, by comparing the graphs we can see this model does not do a good job, since the relation is not linear. And we know the relationship is quadratic. 
+
+*i-)*
+
+This experiment demonstrates the effectiveness of SVMs with non-linear kernels for locating non-linear boundaries. SVMs using linear kernels and logistic regression with no interactions both fall short in locating the decision boundary. Logistic regression appears to have the same power as radial-basis kernels when interaction factors are included. However, choosing the proper interaction terms requires some manual work and fine adjustment. 
+
+4. **ISL** Sec. 12.6: 10
+
+**Solution: **
+
+*a-)*
+
+```{r}
+
+data = matrix(c(rnorm(20 * 50, mean = 4),               
+             rnorm(20 * 50, mean = 2),
+             rnorm(20 * 50, mean = 5)), ncol = 50, byrow = TRUE)
+my_class <- rep(0,60)
+my_class[1:20] <- "blue"
+my_class[21:40] <- "red"
+my_class[41:60] <- "green"
+```
+
+
+*b-)*
+
+```{r}
+pcs = prcomp(data)
+plot(pcs$x[,1:2],col=my_class,pch=19)
+```
+
+
+*c-)*
+
+```{r}
+kmeans.result = kmeans(data, centers=3, nstart = 100)
+table(my_class, kmeans.result$cluster)
+```
+As we can see all observations are correctly my_classified. This is expected as the observations in the three my_classes are well separated, and we happen to know that there are 3 my_classes. 
+
+*d-)*
+
+```{r}
+kmeans.result = kmeans(data, centers=2, nstart = 100)
+table(my_class, kmeans.result$cluster)
+```
+From looking at the plot of the my_classes, it makes sense that all the green and blue are my_classified together, since the distance from the red is much larger. 
+
+*e-)*
+
+```{r}
+kmeans.result = kmeans(data, centers=4, nstart = 100)
+table(my_class, kmeans.result$cluster)
+
+plot(pcs$x[,1:2],col=kmeans.result$cluster,pch=19)
+```
+ Since we already knew that we had 3 my_classes, using 4 clusters would dived into more clusters than necessary. And we can see that it happened. The "middle" cluster got separated into two. 
+ 
+
+*f-)*
+
+```{r}
+kmeans.res2 = kmeans(pcs$x[,1:2],centers=3, nstart = 100)
+table(kmeans.res2$cluster,my_class)
+```
+The results show that it perfectly separated the clusters. 
+
+*g-)*
+
+```{r}
+kmeans.result = kmeans(scale(data), centers=3, nstart = 100)
+table(my_class, kmeans.result$cluster)
+plot(pcs$x[,1:2],col=kmeans.result$cluster,pch=19)
+```
+
+The outcomes are the same as part (b), where the assigned clusters are flawlessly mapped to the original my_classes.Since there was no overlapping in the simulated data. However, results from data sets with overlapping observations would probably differ.
+
+
+# Exercises required for MSSC PhD students
+
+None.
+
+
+# Optional Exercises
+
+None.

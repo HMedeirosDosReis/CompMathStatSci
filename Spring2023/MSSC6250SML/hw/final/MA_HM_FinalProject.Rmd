@@ -1,0 +1,282 @@
+---
+title: "Final"
+output: 
+  pdf_document: 
+    keep_tex: yes
+date: "2023-04-30"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+```{r, simulation}
+
+set.seed(1999)
+
+# set parameters
+n <- 50
+b0 <- 0.15
+b1 <- 0.3
+
+xs <- seq(0, 10, 0.05)
+lam <- exp(b0 + b1*xs)
+upperCI <- lam + 1.96*sqrt(lam/n)
+lowerCI <- lam - 1.96*sqrt(lam/n)
+
+probs <- data.frame(
+  x = xs,
+  lam = lam,
+  upperCI = upperCI,
+  lowerCI = lowerCI
+)
+
+# random sample
+x <- runif(n, min = 0, max = 10)
+lam = exp(b0 + b1*x)
+
+y = c()
+for (i in 1:n)
+  y[i] <- rpois(1, lam[i])
+
+smpl <- data.frame(x, y)
+
+ggplot(data = probs, 
+  aes(x = x, y = lam)) + 
+  geom_ribbon(aes(ymin = lam - 1.96*sqrt(lam/n),
+                  ymax = lam + 1.96*sqrt(lam/n)),
+              fill = "steelblue2") +
+  geom_line() +
+  labs(title="Figure 1: Expected Values, 95% CI", x="x", y=expression(lambda))
+
+ggplot(data = smpl, 
+  aes(x = x, y = y)) + 
+  geom_point() +
+  labs(title="Figure 2: Simulated Poisson Data", x="x", y="y")
+```
+
+
+```{r, poissonreg}
+# poisson regression
+mod.pois <- glm(
+  y ~ x, 
+  data = smpl,
+  family = poisson
+)
+summary(mod.pois)
+```
+
+```{r, linearreg}
+# linear regression
+mod.lm <- lm(
+  y ~ x, 
+  data = smpl,
+)
+summary(mod.lm)
+```
+
+```{r, multilog}
+# multinomial logistic regression
+mod.multilog <- nnet::multinom(
+  y ~ x, 
+  data = smpl)
+summary(mod.multilog)
+
+multilog_fit <- predict(mod.multilog, newdata = smpl$x, type = "class")
+multilog_fit <- as.numeric(levels(multilog_fit))[multilog_fit]
+```
+
+```{r, fittedvalues}
+# plot simulated data and model fits
+
+library(reshape2)
+data <- data.frame(x,
+                   Poisson = mod.pois$fitted.values,
+                   Linear = mod.lm$fitted.values, 
+                   Logistic = multilog_fit,
+                   True = y)
+
+# melt data frame into long format
+mdata <- melt(data, id.vars = 'x', variable.name = "model")
+
+ggplot(data = subset(mdata, model != "True"), 
+  aes(x = x, y = value, color = model)) + 
+  geom_line() +
+  geom_point(data = subset(mdata, model == "True")) +
+  labs(title="Figure 3: Simulated Data Set and Fitted Models", x="x", y="y") +
+  scale_color_discrete(name="Model") +
+  scale_color_manual(values=c("#00BA38", "#619CFF", "#F8766D", "#C77CFF"))
+```
+
+```{r, residuals}
+# compare model residuals
+
+resid <- data.frame(x = x,
+                    Poisson = mod.pois$residuals,
+                    Linear = mod.lm$residuals, 
+                    Logistic = y - multilog_fit)
+
+mres <- melt(resid, id.vars = 'x', variable.name = "model")
+
+ggplot(data = mres,
+  aes(x = x, y = value, color = model)) + 
+  geom_point() +
+  labs(title="Figure 4: Model Residuals", x="x", y="Residual") +
+  scale_color_discrete(name="Model")
+
+#plot(mod.lm$fitted.values, mod.lm$residuals)
+#plot(mod.pois$fitted.values, mod.pois$residuals)
+#plot(mod.pois$fitted.values, mod.pois$residuals/sqrt(mod.pois$residuals))
+#plot(multilog_fit, resid$log)
+```
+
+```{r, bigsimulation}
+
+set.seed(123)
+
+# set parameters
+n <- 1000
+beta <- matrix(c(log(2), 0.5, 0.2, 1, -0.3), ncol=5)
+
+# random sample
+x1 <- rnorm(n)
+x2 <- rbinom(n, 1, 0.5)
+x3 <- rnorm(n, mean = 2*x1 + 0.5*x2)
+x4 <- rnorm(n, sd = 2)
+
+#x1 <- rnorm(n, sd = 3)
+#x2 <- rnorm(n, sd = 3)
+#x3 <- rnorm(n, sd = 3)
+#x4 <- rnorm(n, sd = 3)
+
+# calculate lambdas
+X <- matrix(c(rep(1,n),x1, x2, x3, x4), ncol = 5)
+lam <- exp(beta %*% t(X) + rnorm(n, sd=0.1))
+
+# generate Poisson responses
+y <- rpois(n, lam)
+smpl <- data.frame(X, y)
+
+# split data into training and testing set
+train <- sample(1:n, n/2)
+y.train <- smpl[train , "y"]
+y.test <- smpl[-train , "y"]
+```
+
+```{r, bigpoisson}
+# fit Poisson regression
+mod.pois <- glm(
+  y ~ .-X1, 
+  data = smpl,
+  family = poisson,
+  subset = train,
+)
+summary(mod.pois)
+
+# predict on testing data
+yhat.pois <- predict(mod.pois, newdata = smpl[-train, ], type = "response")
+pois.MSE <- mean((yhat.pois - y.test)^2)
+pois.MSE
+
+# save in data frame
+predictions <- data.frame(#index = 1:length(y.test),
+                    #X[-train,],
+                    true = y.test,
+                    Poisson = yhat.pois)
+
+ggplot(predictions, aes(x=Poisson, y=true)) +
+  geom_point(colour = '#F8766D') +
+  geom_abline() +
+  labs(title="Figure 5: Poisson Predictions", x="Predicted Response", y="True Response") + 
+  theme(legend.position = "none") 
+```
+
+```{r, biglinearreg}
+# linear regression
+mod.lm <- lm(
+  y ~ .-X1,
+  data = smpl,
+  subset = train
+)
+summary(mod.lm)
+
+# predict on testing data
+yhat.lm <- predict(mod.lm, newdata = smpl[-train, ])
+lm.MSE <- mean((yhat.lm - y.test)^2)
+lm.MSE
+
+# save in data frame
+predictions <- cbind(predictions, Linear = yhat.lm)
+
+ggplot(predictions, aes(x=Linear, y=true)) +
+  geom_point(colour = '#00BA38') +
+  geom_abline() +
+  labs(title="Figure 6: Linear Model Predictions", x="Predicted Response", y="True Response") + 
+  theme(legend.position = "none") 
+```
+```{r, bigmultilog}
+# multinomial logistic regression
+mod.multilog <- nnet::multinom(
+  y ~ .-X1,
+  data = smpl,
+  subset = train)
+#summary(mod.multilog)
+
+# predict on testing data
+yhat.log <- predict(mod.multilog, newdata = smpl[-train,], type = "class")
+yhat.log <- as.numeric(levels(yhat.log))[yhat.log]
+log.MSE <- mean((yhat.log - y.test)^2)
+log.MSE
+
+# save in data frame
+predictions <- cbind(predictions, Logistic = yhat.log)
+
+ggplot(predictions, aes(x=Logistic, y=true)) +
+  geom_point(colour = '#619CFF') +
+  geom_abline() +
+  labs(title="Figure 7: Logistic Model Predictions", x="Predicted Response", y="True Response") + 
+  theme(legend.position = "none") 
+```
+
+```{r, testpredictions}
+# compare performance
+mpred <- melt(predictions, id.vars = 'true', variable.name = "model")
+
+ggplot(data = subset(mpred, value < 10000),
+  aes(x = value, y = true, color = model)) + 
+  geom_point() +
+  geom_abline() +
+  labs(title="Model Predictions", x="Predicted Response", y="True Response") +
+  scale_color_discrete(name="Model") + 
+  scale_color_manual(values=c("#F8766D", "#00BA38", "#619CFF"))
+```
+
+
+
+```{r, bigresiduals}
+# compare residuals
+
+df1 <- data.frame(index = 1:length(y.test),
+                    fitted = yhat.pois,
+                    resid = y.test - yhat.pois,
+                    model = rep("Poisson", length(y.test)))
+df2 <- data.frame(index = 1:length(y.test),
+                    fitted = yhat.lm,
+                    resid = y.test - yhat.lm,
+                    model = rep("Linear", length(y.test)))
+df3 <- data.frame(index = 1:length(y.test),
+                    fitted = yhat.log,
+                    resid = y.test - yhat.log,
+                    model = rep("Logistic", length(y.test)))
+res <- rbind(df1, df2, df3)
+
+# plot residuals for positive, predicted values < 1500
+ggplot(data = subset(res, fitted < 1500 & fitted > 0),
+  aes(x = fitted, y = resid, color = model)) + 
+  geom_point() +
+  geom_abline(intercept = 0, slope = 0) +
+  labs(title="Figure 8: Model Residuals", x="Predicted Response", y="Residual") +
+  scale_color_discrete(name="Model") +
+  scale_color_manual(values=c("#00BA38", "#619CFF", "#F8766D"))
+```
